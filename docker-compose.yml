@@ -1,0 +1,64 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_ENVIRONMENT=local
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/crypto_portfolio
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-me-in-production
+      - MORALIS_API_KEY=${MORALIS_API_KEY}
+      - MORALIS_API_KEY_DEVELOP=${MORALIS_API_KEY_DEVELOP}
+
+  db:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=crypto_portfolio
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+    command: celery -A backend worker -l INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - redis
+    environment:
+      - DJANGO_ENVIRONMENT=local
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/crypto_portfolio
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-me-in-production
+      - MORALIS_API_KEY=${MORALIS_API_KEY}
+      - MORALIS_API_KEY_DEVELOP=${MORALIS_API_KEY_DEVELOP}
+
+volumes:
+  postgres_data:
+  redis_data:
