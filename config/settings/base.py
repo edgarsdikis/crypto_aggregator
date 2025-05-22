@@ -1,11 +1,15 @@
 import os
 from pathlib import Path
 import environ
-import dj_database_url
 from datetime import timedelta
 
 # Initialize environ
-env = environ.Env()
+env = environ.Env(
+    # Set casting and default values
+    DEBUG=(bool, False),
+    DATABASE_URL=(str, 'postgres://postgres:postgres@db:5432/crypto_portfolio'),
+    REDIS_URL=(str, 'redis://redis:6379/0'),
+)
 
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -69,15 +73,11 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-# Database - using dj_database_url for connection strings
 DATABASES = {
-    'default': dj_database_url.config(
-        conn_max_age=600
-    )
+    'default': env.db()
 }
 
-# Redis configuration
-REDIS_URL = env('REDIS_URL', default='redis://redis:6379/0')
+REDIS_URL = env('REDIS_URL')
 
 # Caching
 CACHES = {
