@@ -34,7 +34,12 @@ INSTALLED_APPS = [
     "corsheaders",
     "drf_spectacular",
     # Local apps
-    "users",
+    "apps.users",
+    "apps.wallets",
+    "apps.tokens", 
+    "apps.prices",
+    "apps.portfolio",
+    "apps.integrations",
 ]
 
 # User Model
