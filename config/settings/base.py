@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import environ
 import dj_database_url
+from datetime import timedelta
 
 # Initialize environ
 env = environ.Env()
@@ -29,8 +30,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "drf_spectacular",
     # Local apps
-    # Add your apps here
+    "users",
 ]
+
+# User Model
+AUTH_USER_MODEL = "users.CustomUser"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -44,7 +48,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "backend.urls"
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
@@ -62,8 +66,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "backend.wsgi.application"
-ASGI_APPLICATION = "backend.asgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 
 # Database - using dj_database_url for connection strings
 DATABASES = {
@@ -113,17 +117,32 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+# JWT settings
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
 # API documentation settings
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Crypto Portfolio API',
     'DESCRIPTION': 'API for tracking cryptocurrency portfolios across multiple chains and exchanges',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'TAGS': [
+        {'name': 'Authentication', 'description': 'User authentication and JWT token refresh endpoints'},
+        {'name': 'User', 'description': 'User profile endpoints'},
+        {'name': 'Wallets', 'description': 'Wallet management endpoints'},
+        {'name': 'Tokens', 'description': 'Token and asset data endpoints'},
+    ],
+    # Use our custom generator
+    'DEFAULT_GENERATOR_CLASS': 'spectacular.schema.CustomSchemaGenerator',
 }
 
 # Internationalization
-LANGUAGE_CODE = "en-gb"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "en-gb"  # British English uses 24-hour format by default
+TIME_ZONE = "Europe/Riga"  # Riga time zone
 USE_I18N = True
 USE_TZ = True
 

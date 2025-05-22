@@ -6,7 +6,7 @@ ARG DEV=false
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV DJANGO_SETTINGS_MODULE=backend.settings
+ENV DJANGO_SETTINGS_MODULE=config.settings
 
 # Set work directory
 WORKDIR /app
@@ -25,4 +25,4 @@ RUN chown -R app_user:app_user /app
 USER app_user
 
 # Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
