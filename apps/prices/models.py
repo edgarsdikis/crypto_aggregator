@@ -1,16 +1,14 @@
 from django.db import models
-from apps.portfolio.models import WalletTokenBalance
+from django.db.models.deletion import CASCADE
+from apps.tokens.models import Token
 
-class Prices(models.Model):
+class Price(models.Model):
     """
     Model to store token prices
     """
-    address = models.ForeignKey(WalletTokenBalance, on_delete=models.CASCADE)
-    chain = models.CharField(max_length=50)
-    cmc_price = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
-
-    class Meta:
-        unique_together = ('address', 'chain')
+    token = models.OneToOneField(Token, on_delete=CASCADE, related_name='current_price')
+    price = models.DecimalField(max_digits=20, decimal_places=8)
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.address.address} ({self.chain})"
+        return f"{self.token.name} ({self.price})"

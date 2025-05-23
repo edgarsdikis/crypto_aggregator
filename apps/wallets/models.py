@@ -17,7 +17,7 @@ class Wallet(models.Model):
 
 class UserWallet(models.Model):
     """
-    Association between user and wallet
+    Association between user and wallet address
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)

@@ -1,19 +1,19 @@
 from django.contrib import admin
-from .models import TokenId, TokenMetadata
+from .models import Token, TokenExternalId
 
-@admin.register(TokenMetadata)
-class TokenMetadataAdmin(admin.ModelAdmin):
+@admin.register(Token)
+class TokenAdmin(admin.ModelAdmin):
     """
-    Admin configuration for TokenMetadata model
+    Admin configuration for Token model
     """
-    list_display = ('address__address', 'name', 'symbol', 'chain')
-    search_fields = ('address__address', 'name', 'symbol', 'chain')
+    list_display = ('contract_address', 'name', 'symbol', 'chain')
+    search_fields = ('contract_address', 'name', 'symbol', 'chain')
     list_filter = ['chain']
 
-@admin.register(TokenId)
-class TokenIdAdmin(admin.ModelAdmin):
+@admin.register(TokenExternalId)
+class TokenExternalIdAdmin(admin.ModelAdmin):
     """
-    Admin configuration for TokenId model
+    Admin configuration for TokenExternalId model
     """
-    list_display = ('address__address__address', 'coinmarketcap')
-    search_fields = ('address__address__address', 'coinmarketcap')
+    list_display = ('token__name', 'token__contract_address', 'token__chain', 'coinmarketcap_id')
+    search_fields = ('token__name', 'token__contract_address', 'token__chain', 'coinmarketcap_id')

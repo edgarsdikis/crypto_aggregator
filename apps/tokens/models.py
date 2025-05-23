@@ -1,32 +1,33 @@
 from django.db import models
-from apps.portfolio.models import WalletTokenBalance
 
-class TokenMetadata(models.Model):
+class Token(models.Model):
     """
-    Model to store token metadata
+    Token metadata
     """
-    address = models.ForeignKey(WalletTokenBalance, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    contract_address = models.CharField(max_length=255)
     chain = models.CharField(max_length=50)
-    logo = models.URLField(max_length=500, null=True, blank=True)
     symbol = models.CharField(max_length=50)
-
+    name = models.CharField(max_length=255)
+    logo_url = models.URLField(max_length=500, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
     class Meta:
-        unique_together = ('address', 'chain')
-
+        unique_together = ('contract_address', 'chain')
+    
     def __str__(self):
-        return f"{self.address.adress} ({self.chain})"
+        return f"{self.symbol} on {self.chain}"
 
 
-class TokenId(models.Model):
+class TokenExternalId(models.Model):
     """
-    Model to store token id mapping
+    External service IDs for tokens
     """
-    address = models.ForeignKey(TokenMetadata, on_delete=models.CASCADE)
-    coinmarketcap = models.DecimalField(max_digits=18, decimal_places=0, null=True, blank=True)
-
-    class Meta:
-        unique_together = ('address', 'coinmarketcap')
-
+    token = models.OneToOneField(
+        Token, 
+        on_delete=models.CASCADE, 
+        related_name='external_ids'
+    )
+    coinmarketcap_id = models.IntegerField(null=True, blank=True, db_index=True)
+    
     def __str__(self):
-        return f"{self.address.address} -> {self.coinmarketcap}"
+        return f"{self.token.symbol} IDs"

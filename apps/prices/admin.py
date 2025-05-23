@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import Prices
+from .models import Price
 
-@admin.register(Prices)
-class PricesAdmin(admin.ModelAdmin):
+@admin.register(Price)
+class PriceAdmin(admin.ModelAdmin):
     """
-    Admin configuration for Prices model
+    Admin configuration for Price model
     """
-    list_display = ('address__address', 'address__name', 'chain', 'cmc_price')
-    search_fields = ('address__address', 'address__name')
-    list_filter = ['chain']
+    list_display = ('token__contract_address', 'token__name', 'token__chain', 'price', 'last_updated')
+    search_fields = ('token__contract_address', 'token__name')
+    list_filter = ['token__chain']
