@@ -20,6 +20,7 @@ services:
       - SECRET_KEY=dev-secret-key-change-me-in-production
       - MORALIS_API_KEY=${MORALIS_API_KEY}
       - MORALIS_API_KEY_DEVELOP=${MORALIS_API_KEY_DEVELOP}
+      - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
 
   db:
     image: postgres:16
@@ -58,6 +59,7 @@ services:
       - SECRET_KEY=dev-secret-key-change-me-in-production
       - MORALIS_API_KEY=${MORALIS_API_KEY}
       - MORALIS_API_KEY_DEVELOP=${MORALIS_API_KEY_DEVELOP}
+      - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
 
 volumes:
   postgres_data:
