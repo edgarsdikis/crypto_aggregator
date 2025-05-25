@@ -15,5 +15,6 @@ class TokenExternalIdAdmin(admin.ModelAdmin):
     """
     Admin configuration for TokenExternalId model
     """
-    list_display = ('token__name', 'token__contract_address', 'token__chain', 'coinmarketcap_id')
-    search_fields = ('token__name', 'token__contract_address', 'token__chain', 'coinmarketcap_id')
+    list_display = ('token', 'name', 'symbol', 'coinmarketcap_id', 'mapping_updated_at')
+    search_fields = ('token', 'name', 'symbol', 'coinmarketcap_id', 'mapping_updated_at')
+

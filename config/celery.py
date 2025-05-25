@@ -13,6 +13,11 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Auto-discover tasks from installed apps
 app.autodiscover_tasks()
 
+# ADDITION: Force import specific task modules
+app.autodiscover_tasks([
+    'apps.integrations.coinmarketcap',
+])
+
 @app.task(bind=True)
 def debug_task(self):
     print(f'Request: {self.request!r}')

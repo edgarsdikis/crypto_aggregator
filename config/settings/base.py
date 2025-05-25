@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import environ
 from datetime import timedelta
+from celery.schedules import crontab
 
 # Initialize environ
 env = environ.Env(
@@ -100,6 +101,15 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Celery Beat settings (for scheduled tasks)
+CELERY_BEAT_SCHEDULE = {
+    'sync-coinmarketcap-tokens': {
+        'task': 'apps.integrations.coinmarketcap.tasks.sync_coinmarketcap_token_ids',
+        'schedule': crontab(day_of_week='1', hour='2', minute='0'), # Every Monday at 2:00 AM
+    },
+}
+CELERY_TIMEZONE = 'Europe/Riga'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

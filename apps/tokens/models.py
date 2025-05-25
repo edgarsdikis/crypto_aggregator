@@ -25,9 +25,14 @@ class TokenExternalId(models.Model):
     token = models.OneToOneField(
         Token, 
         on_delete=models.CASCADE, 
-        related_name='external_ids'
+        related_name='external_ids',
+        null=True,
+        blank=True
     )
+    name = models.CharField(max_length=255, null=True, blank=True)
+    symbol = models.CharField(max_length=50, null=True, blank=True)
     coinmarketcap_id = models.IntegerField(null=True, blank=True, db_index=True)
+    mapping_updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.token.symbol} IDs"
+        return f"{self.symbol} IDs"
