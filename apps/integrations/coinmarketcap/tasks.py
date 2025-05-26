@@ -13,5 +13,19 @@ def sync_coinmarketcap_token_ids():
         service.sync_token_ids()
         return "CoinMarketCap token ID sync completed successfully"
     except Exception as e:
-        print(f"CoinMarketCap sync failed: {e}")
+        print(f"CoinMarketCap IDs sync failed: {e}")
 
+
+@shared_task
+def sync_coinmarketcap_token_metadata():
+    """
+    Celery task to sync CoinMarketCap token metadata
+
+    This task should be run weekly to update our token metadata
+    """
+    try:
+        service = CoinMarketCapSyncService()
+        service.sync_token_metadata()
+        return "CoinMarketCap token metadata sync completed successfully"
+    except Exception as e:
+        print(f"CoinMarketCap token metadata sync failed: {e}")

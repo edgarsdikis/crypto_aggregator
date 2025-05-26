@@ -1,15 +1,13 @@
 import requests
 from django.conf import settings
-from .exceptions import (
-        CoinMarketCapError,
-        CoinMarketCapApiError,
-        CoinMarketCapConnectionError,
-        CoinMarketCapRateLimitError
-        )
+
+from .exceptions import (CoinMarketCapApiError, CoinMarketCapConnectionError,
+                         CoinMarketCapError, CoinMarketCapRateLimitError)
+
 
 class CoinMarketCapClient:
     """Client for interacting with CoinMarketCap API"""
-    
+
     BASE_URL = "https://pro-api.coinmarketcap.com"
 
     def __init__(self, api_key=None):
@@ -19,16 +17,16 @@ class CoinMarketCapClient:
         Args:
             api_key: CoinMarketCap API key (defaults to settings)
         """
-        self.api_key = api_key or getattr(settings, 'COINMARKETCAP_API_KEY', None)
+        self.api_key = api_key or getattr(settings, "COINMARKETCAP_API_KEY", None)
 
         # Validate API key exists
         if not self.api_key:
-            raise CoinMarketCapError('CoinMarketCap API key is required')
+            raise CoinMarketCapError("CoinMarketCap API key is required")
 
     def _make_request(self, endpoint, params=None):
         """
         Make HTTP request to CoinMarketCap API
-        
+
         Args:
             endpoint: API endpoint
             params: Query parameters
@@ -40,12 +38,9 @@ class CoinMarketCapClient:
             Various CoinMarketCapError subclasses
         """
         url = f"{self.BASE_URL}{endpoint}"
-        headers = {
-                'X-CMC_PRO_API_KEY': self.api_key,
-                'Accept': 'application/json'
-                }
+        headers = {"X-CMC_PRO_API_KEY": self.api_key, "Accept": "application/json"}
         try:
-            response = requests.get(url, headers=headers,params=params, timeout=30)
+            response = requests.get(url, headers=headers, params=params, timeout=30)
         except requests.exceptions.ConnectionError:
             raise CoinMarketCapConnectionError("Failed to connect to CoinMarketCap API")
         except requests.exceptions.Timeout:
@@ -60,7 +55,9 @@ class CoinMarketCapClient:
                 error_msg = error_data["status"]["error_message"]
                 raise CoinMarketCapApiError(f"API error {error_code}: {error_msg}")
             except ValueError:
-                raise CoinMarketCapApiError(f"Cant parse the JSON: {response.status_code}")
+                raise CoinMarketCapApiError(
+                    f"Cant parse the JSON: {response.status_code}"
+                )
 
         try:
             return response.json()
@@ -70,7 +67,7 @@ class CoinMarketCapClient:
     def get_cmc_crypto_map(self, start=1, limit=5000, sort="id"):
         """
         Get a mapping of all cryptocurrencies to unique CoinMarketCap IDs
-        
+
         Args:
             start: Starting record(default: 1)
             limit: Number of results (default: 5000, max: 5000)
@@ -81,14 +78,26 @@ class CoinMarketCapClient:
         """
         endpoint = "/v1/cryptocurrency/map"
 
-        params = {
-                'start': start,
-                'limit': limit,
-                'sort': sort
-                }
+        params = {"start": start, "limit": limit, "sort": sort}
 
         response_data = self._make_request(endpoint, params)
 
-        return response_data['data']
+        return response_data["data"]
         # TODO: Implement pagination to fetch all tokens (CMC has 27,000+)
 
+    def get_token_info(self, coinmarketcap_ids):
+        """
+        Get detailed token information for given CoinMarketCap IDs
+
+        Args:
+            coinmarketcap_ids: List of CoinMarketCap IDs
+
+        Returns:
+            Dict of token information keyed by ID
+        """
+        endpoint = "/v2/cryptocurrency/info"
+        ids_string = ",".join(str(id) for id in coinmarketcap_ids)
+        params = {"id": ids_string}
+
+        response_data = self._make_request(endpoint, params)
+        return response_data["data"]
