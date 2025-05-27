@@ -1,7 +1,8 @@
 from django.db import transaction
+from apps.prices.models import Price
 from apps.tokens.models import Token, TokenExternalId
 from .client import CoinMarketCapClient
-from .serializers import CoinMarketCapTokenInfoSerializer, CoinMarketCapTokenMapSerializer
+from .serializers import CoinMarketCapTokenInfoSerializer, CoinMarketCapTokenMapSerializer, CoinMarketCapTokenPriceSerializer
 import time
 
 
@@ -29,12 +30,47 @@ class CoinMarketCapSyncService:
         TokenExternalId.objects.all().delete()
         
         print("Creating fresh TokenExternalId records...")
-        self._process_and_save_tokens(tokens_data)
+        self._process_and_save_tokens_ids(tokens_data)
 
         print(f"Sync completed. Processed {len(tokens_data)} tokens")
 
+    def sync_token_metadata(self):
+        """
+        Sync detailed token metadata from CoinMarketCap
+        Uses a complete replace strategy for data freshness
+        """
+        print("Starting token metadata sync...")
+        all_ids = self._get_all_coinmarketcap_ids()
+        
+        print("Clearing existing Token records...")
+        Token.objects.all().delete()
+
+        batches = self._create_batches(all_ids, batch_size=100)
+
+        failed_batches = []
+        for batch_num, batch_ids in enumerate(batches, 1):
+            success = self._process_batch_metadata(batch_ids, batch_num, len(batches))
+            if not success:
+                failed_batches.append(batch_num)
+        print(f"Token metadata sync completed. Failed batches: {failed_batches}")
+
+    def sync_token_prices(self):
+        """Sync token prices from CoinMarketCap"""
+        print("Starting token price sync...")
+        try:
+            token_prices = self.client.get_token_prices(start=1, limit=5000)
+            print(f"Fetched {len(token_prices)} from API")
+            print("Updating price records...")
+            
+            success_count, error_count = self._process_and_save_token_prices(token_prices)
+            print(f"Token price sync completed: {success_count} successful, {error_count} failed")
+
+        except Exception as e:
+            print(f"Failed to fetch token prices: {e}")
+
+
     @transaction.atomic
-    def _process_and_save_tokens(self, tokens_data):
+    def _process_and_save_tokens_ids(self, tokens_data):
         """
         Process token data and save to database
         """
@@ -61,24 +97,6 @@ class CoinMarketCapSyncService:
         print(f"Sync completed: {success_count} successful, {error_count} errors")
 
 
-    def sync_token_metadata(self):
-        """
-        Sync detailed token metadata from CoinMarketCap
-        """
-        print("Starting token metadata sync...")
-
-        all_ids = self._get_all_coinmarketcap_ids()
-
-        batches = self._create_batches(all_ids, batch_size=100)
-
-        failed_batches = []
-        for batch_num, batch_ids in enumerate(batches, 1):
-            success = self._process_batch(batch_ids, batch_num, len(batches))
-            if not success:
-                failed_batches.append(batch_num)
-
-        print(f"Sync completed. Failed batches: {failed_batches}")
-
     def _get_all_coinmarketcap_ids(self):
         return list(TokenExternalId.objects.values_list('coinmarketcap_id', flat=True))
         
@@ -90,9 +108,9 @@ class CoinMarketCapSyncService:
             batches.append(batch)
         return batches
         
-    def _process_batch(self, batch_ids, batch_num, total_batches):
+    def _process_batch_metadata(self, batch_ids, batch_num, total_batches):
         """
-        Process a batch of CoinMarketCap IDs
+        Process a batch of CoinMarketCap IDs to get token metadata
 
         Args:
             batch_ids: List of CoinMarketCap IDs
@@ -150,3 +168,56 @@ class CoinMarketCapSyncService:
         
         print(f"Batch {batch_num} completed: {success_count} successful, {error_count} errors")
         return error_count == 0
+
+    @transaction.atomic
+    def _process_and_save_token_prices(self, token_prices):
+        """
+        Process tokens prices and save to database
+        Args:
+            token_prices: List of token price data from API
+        Returns:
+            tuple: (success_count, error_count)
+        """
+        success_count = 0
+        error_count = 0
+        
+        for token_price in token_prices:
+            try:
+                # Validate API structure
+                serializer = CoinMarketCapTokenPriceSerializer(data=token_price)
+                if not serializer.is_valid():
+                    print(f"Token validation error: {serializer.errors}")
+                    error_count += 1
+                    continue
+                
+                cmc_id = serializer.validated_data['id']  # type: ignore
+                
+                # Find TokenExternalId
+                try:
+                    external_id_record = TokenExternalId.objects.get(coinmarketcap_id=cmc_id)
+                except TokenExternalId.DoesNotExist:
+                    print(f"Token with id: {cmc_id} does not exsist in TokenExternalId model")
+                    error_count += 1
+                    continue
+
+                price = serializer.get_price(token_price)
+
+                if price is None:
+                    print(f"No price data for token {cmc_id}")
+                    error_count += 1
+                    continue
+
+                # Create/Update Price record
+                Price.objects.update_or_create(
+                    token_id=external_id_record,
+                    defaults={
+                        'price': price
+                    }
+                )
+                success_count += 1
+                
+            except Exception as e:
+                print(f"Unexpected error processing token: {e}")
+                error_count += 1
+        
+        return success_count, error_count

@@ -61,3 +61,23 @@ class CoinMarketCapTokenInfoSerializer(serializers.Serializer):
         platform = obj.get('platform')
         return platform.get('token_address') if platform else None
         
+class CoinMarketCapTokenPriceSerializer(serializers.Serializer):
+    """
+    Serializer for individual token from CoinMarketCap price API
+    """
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    price = serializers.SerializerMethodField()
+
+    def get_price(self, obj):
+        """Extract USD price with safe None checks like get_contract_address"""
+        quote = obj.get('quote')
+        if not quote:
+            return None
+            
+        usd = quote.get('USD')
+        if not usd:
+            return None
+            
+        return usd.get('price')
+

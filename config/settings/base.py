@@ -112,6 +112,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'apps.integrations.coinmarketcap.tasks.sync_coinmarketcap_token_metadata',
         'schedule': crontab(day_of_week='1', hour='2', minute='2') #Every Monday at 2:02 AM
     },
+    'sync-coinmarketcap-token-prices': {
+        'task': 'apps.integrations.coinmarketcap.tasks.sync-coinmarketcap-token-prices',
+        'schedule': crontab(day_of_week='1', hour='2',minute='7') #Every Monday at 2:07 AM
+    },
 }
 CELERY_TIMEZONE = 'Europe/Riga'
 

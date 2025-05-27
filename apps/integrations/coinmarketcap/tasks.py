@@ -29,3 +29,18 @@ def sync_coinmarketcap_token_metadata():
         return "CoinMarketCap token metadata sync completed successfully"
     except Exception as e:
         print(f"CoinMarketCap token metadata sync failed: {e}")
+
+
+@shared_task
+def sync_coinmarketcap_token_prices():
+    """
+    Celery task to sync CoinMarketCap token price data
+
+    This tas should be run [PLACE HOLDER] to update our token prices
+    """
+    try:
+        service = CoinMarketCapSyncService()
+        service.sync_token_prices()
+        return "CoinMarketCap token prices sync completed successfully"
+    except Exception as e:
+        print(f"CoinMarketCap token price sync failed: {e}")

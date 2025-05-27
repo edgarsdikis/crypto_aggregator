@@ -64,14 +64,14 @@ class CoinMarketCapClient:
         except ValueError:
             raise CoinMarketCapError("Invalid JSON response from API")
 
-    def get_cmc_crypto_map(self, start=1, limit=5000, sort="id"):
+    def get_cmc_crypto_map(self, start=1, limit=5000, sort="cmc_rank"):
         """
         Get a mapping of all cryptocurrencies to unique CoinMarketCap IDs
 
         Args:
             start: Starting record(default: 1)
             limit: Number of results (default: 5000, max: 5000)
-            sort: Sort field (default: "id")
+            sort: Sort field (default: "cmc_rank")
 
         Returns:
             List of cryptocurrency mappings
@@ -98,6 +98,23 @@ class CoinMarketCapClient:
         endpoint = "/v2/cryptocurrency/info"
         ids_string = ",".join(str(id) for id in coinmarketcap_ids)
         params = {"id": ids_string}
+
+        response_data = self._make_request(endpoint, params)
+        return response_data["data"]
+
+    def get_token_prices(self, start=1, limit=5000):
+        """
+        Get token USD price for given tokens sorted by cmc_rank
+
+        Args:
+            start: Starting record (default: 1)
+            limit: Number of results (default: 5000)
+
+        Returns:
+            List of token price data
+        """
+        endpoint = "/v1/cryptocurrency/listings/latest"
+        params = {"start": start, "limit": limit}
 
         response_data = self._make_request(endpoint, params)
         return response_data["data"]
