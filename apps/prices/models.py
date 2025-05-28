@@ -1,14 +1,33 @@
 from django.db import models
-from django.db.models.deletion import CASCADE
-from apps.tokens.models import TokenExternalId
+from apps.tokens.models import TokenMaster
 
-class Price(models.Model):
+class CoingeckoPrice(models.Model):
     """
-    Model to store token prices
+    Model to store coingecko prices of tokens
     """
-    token_id = models.OneToOneField(TokenExternalId, on_delete=CASCADE, related_name='current_price')
-    price = models.DecimalField(max_digits=20, decimal_places=8)
-    last_updated = models.DateTimeField(auto_now=True)
+    token_master = models.OneToOneField(
+            TokenMaster,
+            on_delete=models.PROTECT,
+            related_name='coingecko_price'
+            )
+    price_usd = models.DecimalField(max_digits=30, decimal_places=12)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.token_id.name} ({self.price})"
+        return f"CoinGecko price of {self.token_master.symbol} ({self.token_master.name})"
+
+class CoinMarketCapPrice(models.Model):
+    """
+    Model to store coinmarketcap prices of tokens
+    """
+    token_master = models.OneToOneField(
+            TokenMaster,
+            on_delete=models.PROTECT,
+            related_name='coimarketcap_price'
+            )
+    price_usd = models.DecimalField(max_digits=30, decimal_places=12)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"CoinMarketCap price of {self.token_master.symbol} ({self.token_master.name})"
+
