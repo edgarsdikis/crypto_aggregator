@@ -104,18 +104,18 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Celery Beat settings (for scheduled tasks)
 CELERY_BEAT_SCHEDULE = {
-    'sync-coinmarketcap-tokens': {
-        'task': 'apps.integrations.coinmarketcap.tasks.sync_coinmarketcap_token_ids',
-        'schedule': crontab(day_of_week='1', hour='2', minute='0'), # Every Monday at 2:00 AM
-    },
-    'sync-coinmarketcap-metadata': {
-        'task': 'apps.integrations.coinmarketcap.tasks.sync_coinmarketcap_token_metadata',
-        'schedule': crontab(day_of_week='1', hour='2', minute='2') #Every Monday at 2:02 AM
-    },
-    'sync-coinmarketcap-token-prices': {
-        'task': 'apps.integrations.coinmarketcap.tasks.sync-coinmarketcap-token-prices',
-        'schedule': crontab(day_of_week='1', hour='2',minute='7') #Every Monday at 2:07 AM
-    },
+    # 'sync-coinmarketcap-tokens': {
+    #     'task': 'apps.integrations.coinmarketcap.tasks.sync_coinmarketcap_token_ids',
+    #     'schedule': crontab(day_of_week='1', hour='2', minute='0'), # Every Monday at 2:00 AM
+    # },
+    # 'sync-coinmarketcap-metadata': {
+    #     'task': 'apps.integrations.coinmarketcap.tasks.sync_coinmarketcap_token_metadata',
+    #     'schedule': crontab(day_of_week='1', hour='2', minute='2') #Every Monday at 2:02 AM
+    # },
+    # 'sync-coinmarketcap-token-prices': {
+    #     'task': 'apps.integrations.coinmarketcap.tasks.sync-coinmarketcap-token-prices',
+    #     'schedule': crontab(day_of_week='1', hour='2',minute='7') #Every Monday at 2:07 AM
+    # },
 }
 CELERY_TIMEZONE = 'Europe/Riga'
 
@@ -180,3 +180,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # API Keys
 MORALIS_API_KEY = env('MORALIS_API_KEY')
 COINMARKETCAP_API_KEY = env('COINMARKETCAP_API_KEY')
+COINGECKO_API_KEY= env('COINGECKO_API_KEY')
