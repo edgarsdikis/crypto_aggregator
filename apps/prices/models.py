@@ -23,7 +23,7 @@ class CoinMarketCapPrice(models.Model):
     token_master = models.OneToOneField(
             TokenMaster,
             on_delete=models.PROTECT,
-            related_name='coimarketcap_price'
+            related_name='coinmarketcap_price'
             )
     price_usd = models.DecimalField(max_digits=30, decimal_places=12)
     updated_at = models.DateTimeField(auto_now=True)
