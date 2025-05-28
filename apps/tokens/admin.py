@@ -1,20 +1,21 @@
 from django.contrib import admin
-from .models import Token, TokenExternalId
+from .models import Token, TokenMaster
+
+@admin.register(TokenMaster)
+class TokenMasterAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for TokenMaster model
+    """
+    list_display = ('symbol', 'name', 'coingecko_id', 'coinmarketcap_id', 'coingecko_updated_at', 'coinmarketcap_updated_at')
+    search_fields = ('name', 'symbol', 'coingecko_id', 'coinmarketcap_id')
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
     """
     Admin configuration for Token model
     """
-    list_display = ('contract_address', 'name', 'symbol', 'chain', 'updated_at')
-    search_fields = ('contract_address', 'name', 'symbol', 'chain')
+    list_display = ('master__name', 'chain', 'contract_address', 'coingecko_updated_at', 'coinmarketcap_updated_at')
+    search_fields = ('master__name', 'chain', 'contract_address')
     list_filter = ['chain']
 
-@admin.register(TokenExternalId)
-class TokenExternalIdAdmin(admin.ModelAdmin):
-    """
-    Admin configuration for TokenExternalId model
-    """
-    list_display = ('name', 'symbol', 'coinmarketcap_id', 'mapping_updated_at')
-    search_fields = ('name', 'symbol', 'coinmarketcap_id', 'mapping_updated_at')
 
