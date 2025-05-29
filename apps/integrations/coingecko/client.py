@@ -107,13 +107,13 @@ class CoinGeckoClient:
         failed_pages = []  # Track what we missed
         page = 1
         
-        print(f"Starting market data sync with {per_page} coins per page...")
-        
         while True:
             max_retries = 2
             retry_count = 0
             page_success = False
             
+            print(f"Page number {page}")
+
             while retry_count <= max_retries and not page_success:
                 params = {
                     'vs_currency': vs_currency,
@@ -125,22 +125,17 @@ class CoinGeckoClient:
                     'precision': precision
                 }
                 
-                print(f"Fetching page {page} (attempt {retry_count + 1})...")
-                
                 try:
                     page_data = self._make_request(endpoint, params)
                     
                     if not page_data:
-                        print("No more data, pagination complete")
                         return all_coins, failed_pages
                         
                     if len(page_data) < per_page:
-                        print(f"We are on the last page, got {len(page_data)} coins. Pagination complete")
                         all_coins.extend(page_data)
                         return all_coins, failed_pages
 
                     all_coins.extend(page_data)
-                    print(f"Page {page}: Got {len(page_data)} coins (Total: {len(all_coins)})")
                     page_success = True
                     
                 except CoinGeckoRateLimitError:
@@ -152,7 +147,6 @@ class CoinGeckoClient:
                     print(f"Error on page {page} (attempt {retry_count + 1}): {e}")
                     retry_count += 1
                     if retry_count <= max_retries:
-                        print(f"Retrying in 5 seconds...")
                         time.sleep(5)
             
             if not page_success:
@@ -160,7 +154,6 @@ class CoinGeckoClient:
                 print(f"Page {page} failed after {max_retries + 1} attempts, skipping...")
             
             if page_success and page > 1:
-                print("Waiting 2.5 seconds for rate limiting...")
                 time.sleep(2.5)
                 
             page += 1

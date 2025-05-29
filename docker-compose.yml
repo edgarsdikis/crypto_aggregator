@@ -63,28 +63,28 @@ services:
       - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
       - COINGECKO_API_KEY=${COINGECKO_API_KEY}
 
-#   celery-beat:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#       args:
-#         - DEV=true
-#     command: celery -A config beat -l INFO
-#     volumes:
-#       - .:/app
-#     depends_on:
-#       - web
-#       - redis
-#     environment:
-#       - DJANGO_ENVIRONMENT=local
-#       - DATABASE_URL=postgres://postgres:postgres@db:5432/crypto_portfolio
-#       - REDIS_URL=redis://redis:6379/0
-#       - SECRET_KEY=dev-secret-key-change-me-in-production
-#       - MORALIS_API_KEY=${MORALIS_API_KEY}
-#       - MORALIS_API_KEY_DEVELOP=${MORALIS_API_KEY_DEVELOP}
-#       - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
-#       - COINGECKO_API_KEY=${COINGECKO_API_KEY}
-#
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+    command: celery -A config beat -l INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - redis
+    environment:
+      - DJANGO_ENVIRONMENT=local
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/crypto_portfolio
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-me-in-production
+      - MORALIS_API_KEY=${MORALIS_API_KEY}
+      - MORALIS_API_KEY_DEVELOP=${MORALIS_API_KEY_DEVELOP}
+      - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY}
+
 volumes:
   postgres_data:
   redis_data:

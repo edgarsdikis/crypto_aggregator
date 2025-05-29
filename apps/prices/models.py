@@ -10,7 +10,7 @@ class CoingeckoPrice(models.Model):
             on_delete=models.CASCADE,
             related_name='coingecko_price'
             )
-    price_usd = models.DecimalField(max_digits=60, decimal_places=40)
+    price_usd = models.DecimalField(max_digits=70, decimal_places=50)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -25,7 +25,7 @@ class CoinMarketCapPrice(models.Model):
             on_delete=models.PROTECT,
             related_name='coinmarketcap_price'
             )
-    price_usd = models.DecimalField(max_digits=60, decimal_places=40)
+    price_usd = models.DecimalField(max_digits=70, decimal_places=50)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

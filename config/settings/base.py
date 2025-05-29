@@ -104,6 +104,11 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Celery Beat settings (for scheduled tasks)
 CELERY_BEAT_SCHEDULE = {
+
+    'sync-coingecko-tokenmaster-token-coingeckoprice': {
+        'task': 'apps.integrations.coingecko.tasks.sync_coingecko_tokenmaster_token_coingeckoprices_models',
+        'schedule': crontab(day_of_week='4', hour='8', minute='53'),
+        },
     # 'sync-coinmarketcap-tokens': {
     #     'task': 'apps.integrations.coinmarketcap.tasks.sync_coinmarketcap_token_ids',
     #     'schedule': crontab(day_of_week='1', hour='2', minute='0'), # Every Monday at 2:00 AM

@@ -26,5 +26,5 @@ class CoinGeckoMarketDataSerializer(serializers.Serializer):
     symbol = serializers.CharField(allow_blank=False)
     name = serializers.CharField()
     image = serializers.URLField(allow_null=True, required=False)
-    current_price = serializers.DecimalField(max_digits=60, decimal_places=40, required=True)
+    current_price = serializers.DecimalField(max_digits=70, decimal_places=50, required=True)
     market_cap_rank = serializers.IntegerField(allow_null=True)
