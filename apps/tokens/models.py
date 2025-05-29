@@ -30,7 +30,7 @@ class Token(models.Model):
     """
     master = models.ForeignKey(
             TokenMaster,
-            on_delete=models.PROTECT,
+            on_delete=models.CASCADE,
             related_name='implementations'
             )
 

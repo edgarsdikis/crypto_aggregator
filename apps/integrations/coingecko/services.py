@@ -15,7 +15,7 @@ class CoinGeckoSyncService:
         """
         Complete sync: market data first, then implementations
         """
-        print("🔄 Starting complete CoinGecko sync...")
+        print("Starting complete CoinGecko sync...")
         
         # Step 1: Sync master tokens and prices
         market_result = self.sync_market_data()
@@ -33,6 +33,7 @@ class CoinGeckoSyncService:
         """
 
         print("Starting CoinGecko market data sync...")
+        sync_start_time = timezone.now()
 
         try:
             market_data, failed_pages = self.client.get_coins_markets()
@@ -41,8 +42,10 @@ class CoinGeckoSyncService:
                 print(f"  Warning: {len(failed_pages)} pages failed during fetch")
                 # TODO: something with failed paiges!
 
-            print(f"📊 Processing {len(market_data)} tokens from market data...")
+            print(f"Processing {len(market_data)} tokens from market data...")
             success_count, error_count = self._process_market_data(market_data)
+
+            self._remove_stale_tokens(sync_start_time)
 
             print(f"Market sync completed: {success_count} successful, {error_count} errors")
             return f"Synced {success_count} tokens, {error_count} errors"
@@ -186,4 +189,15 @@ class CoinGeckoSyncService:
                 error_count += 1
         
         return success_count, error_count
+
+    def _remove_stale_tokens(self, sync_start_time):
+        stale_tokens = TokenMaster.objects.filter(
+            coingecko_id__isnull=False,
+            coingecko_updated_at__lt=sync_start_time
+        )
+        
+        stale_count = stale_tokens.count()
+        if stale_count > 0:
+            print(f"🧹 Removing {stale_count} stale tokens...")
+            stale_tokens.delete()
 
