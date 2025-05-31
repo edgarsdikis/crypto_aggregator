@@ -87,7 +87,7 @@ class AlchemyClient:
         Return:
             Dictionary with wallet balance data
         """
-        endpoint = "/assets/tokens/balances/by-address"
+        endpoint = "/assets/tokens/by-address"
         
         request_data = {
                 "addresses": [
