@@ -6,7 +6,7 @@ from .serializers import ALCHEMY_NETWORK_MAPPING, AlchemyTokenBalanceSerializer
 class AlchemyWalletService:
     def process_wallet_balances(self, wallet_response):
         """Process and filter wallet balance data"""
-        tokens = wallet_response.get('data', {}).get('tokens', [])
+        tokens = wallet_response.get('tokens')
         valid_tokens = []
 
         for token_data in tokens:
@@ -25,14 +25,14 @@ class AlchemyWalletService:
             if processed_token:
                 valid_tokens.append(processed_token)
 
-            return valid_tokens
+        return valid_tokens
 
     def _should_include_token(self, token_data, serializer):
         """Logic for filtering tokens"""
         if not serializer.has_price_data(token_data):
             return False
 
-        if not serializer.is_zero_balance(token_data):
+        if serializer.is_zero_balance(token_data):
             return False
 
         return True
