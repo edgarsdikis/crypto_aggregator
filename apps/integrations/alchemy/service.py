@@ -1,4 +1,4 @@
-from apps.tokens.models import TokenMaster
+from apps.tokens.models import SolanaTokenDecimals
 from apps.wallets.models import UserWallet, Wallet
 from apps.portfolio.models import WalletTokenBalance
 from .serializers import ALCHEMY_NETWORK_MAPPING, AlchemyTokenBalanceSerializer
@@ -34,6 +34,9 @@ class AlchemyWalletService:
 
         if serializer.is_zero_balance(token_data):
             return False
+
+        if token_data['network'] == 'solana-mainnet' and token_data['tokenAddress']:
+            return SolanaTokenDecimals.objects.filter(token__contract_address=token_data['tokenAddress']).exists()
 
         return True
 
@@ -74,6 +77,9 @@ class AlchemyWalletService:
         if token_address is None:
             network_info = ALCHEMY_NETWORK_MAPPING.get(network)
             decimals = network_info['native_decimals'] # type: ignore
+        elif network == "solana-mainnet":
+            solana_decimal = SolanaTokenDecimals.objects.select_related('token').get(token__contract_address=token_address)
+            decimals = solana_decimal.decimals
         else:
             decimals = metadata.get('decimals')
 
