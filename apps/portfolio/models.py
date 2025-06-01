@@ -16,4 +16,4 @@ class WalletTokenBalance(models.Model):
         unique_together = ('wallet', 'token')
 
     def __str__(self):
-        return f"{self.wallet.wallet}: {self.token.name} ({self.balance})"
+        return f"{self.wallet.address} {self.wallet.chain}: {self.token.master.name} - ({self.balance})"

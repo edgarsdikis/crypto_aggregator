@@ -4,6 +4,7 @@ from apps.tokens.models import Token, TokenMaster
 from apps.prices.models import CoingeckoPrice
 from .client import CoinGeckoClient
 from .serializers import CoinGeckoCoinsListSerializer, CoinGeckoMarketDataSerializer
+from config.chain_mapping import COINGECKO_NATIVE_TOKEN_MAPPING
 
 class CoinGeckoSyncService:
     """Service for syncing CoinGecko token data and prices"""
@@ -159,17 +160,23 @@ class CoinGeckoSyncService:
                                             'coingecko_updated_at': timezone.now(),
                                         }
                                     )
+                                success_count += 1
                     else:
+                        # No platfors = native token
+                        if coingecko_id in COINGECKO_NATIVE_TOKEN_MAPPING:
+                            chains = COINGECKO_NATIVE_TOKEN_MAPPING[coingecko_id]
 
-                        Token.objects.update_or_create(
-                                master=token_master,
-                                chain="native",
-                                defaults={
-                                    'contract_address': None,  # Native tokens have no contract
-                                    'coingecko_updated_at': timezone.now(),
-                                    }
-                                )
-                    success_count += 1
+                            for chain in chains:
+                                # Create record for each chain where this token is native
+                                Token.objects.update_or_create(
+                                        master=token_master,
+                                        chain=chain,
+                                        defaults={
+                                            'contract_address': 'native',  # Native tokens have no contract
+                                            'coingecko_updated_at': timezone.now(),
+                                            }
+                                        )
+                                success_count += 1
 
                 else:
                     print(f"Validation error for {coin_data['id']}: {serializer.errors}")

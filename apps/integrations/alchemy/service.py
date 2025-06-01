@@ -1,7 +1,9 @@
 from apps.tokens.models import SolanaTokenDecimals
 from apps.wallets.models import UserWallet, Wallet
 from apps.portfolio.models import WalletTokenBalance
-from .serializers import ALCHEMY_NETWORK_MAPPING, AlchemyTokenBalanceSerializer
+from .serializers import AlchemyTokenBalanceSerializer
+from config.chain_mapping import ALCHEMY_NETWORK_MAPPING
+
 
 class AlchemyWalletService:
     def process_wallet_balances(self, wallet_response):

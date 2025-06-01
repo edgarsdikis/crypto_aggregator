@@ -1,42 +1,11 @@
 from apps.integrations.alchemy.client import AlchemyClient
-from apps.integrations.alchemy.serializers import ALCHEMY_NETWORK_MAPPING
 from apps.integrations.alchemy.service import AlchemyWalletService
 from ..models import Wallet, UserWallet
 from ...portfolio.models import WalletTokenBalance
 from ...tokens.models import Token, TokenMaster
+from config.chain_mapping import ALCHEMY_NETWORK_MAPPING, NETWORK_MAPPING
 
 
-NETWORK_MAPPING = {
-    'abstract': 'abstract-mainnet',
-    'anime': 'anime-mainnet',
-    'apechain': 'apechain-mainnet',
-    'arbitrum-one': 'arb-mainnet',
-    'arbitrum-nova': 'arbnova-mainnet',
-    'avalanche': 'avax-mainnet',
-    'bsc': 'bnb-mainnet',
-    'base': 'base-mainnet',
-    'berachain': 'berachain-mainnet',
-    'blast': 'blast-mainnet',
-    'celo': 'celo-mainnet',
-    'eth': 'eth-mainnet',
-    'genesys': 'gensyn-testnet',
-    'xdai': 'gnosis-mainnet',
-    'ink': 'ink-mainnet',
-    'lens': 'lens-mainnet',
-    'linea': 'linea-mainnet',
-    'optimism': 'opt-mainnet',
-    'polygon': 'polygon-mainnet',
-    'ronin': 'ronin-mainnet',
-    'rootstock': 'rootstock-mainnet',
-    'scroll': 'scroll-mainnet',
-    'solana': 'solana-mainnet',
-    'soneium': 'soneium-mainnet',
-    'story': 'story-mainnet',
-    'unichain': 'unichain-mainnet',
-    'worldchain': 'worldchain-mainnet',
-    'zksync': 'zksync-mainnet',
-    'zora': 'zora-mainnet',
-}
 
 class WalletService:
     """Service class for wallet operations"""
@@ -130,11 +99,20 @@ class WalletService:
         """Create WalletTokenBalance records"""
         for token_data in valid_tokens:
             try:
-                # find the the Token in database
-                token = Token.objects.get(
-                        contract_address=valid_tokens['contract_address'],
+                contract_address = token_data['contract_address']
+                
+                if contract_address is None:
+                    # Native token
+                    token = Token.objects.get(
+                        chain=chain,
+                        contract_address="native"
+                    )
+                else:
+                    # Contract token
+                    token = Token.objects.get(
+                        contract_address=contract_address,
                         chain=chain
-                        )
+                    )
 
                 WalletTokenBalance.objects.create(
                         wallet=wallet,
