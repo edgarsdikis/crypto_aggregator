@@ -125,3 +125,32 @@ class WalletService:
             except Exception as e:
                 print(f"Error creating balance record: {e}")
                 continue
+
+    def remove_wallet(self, user, address, chain):
+        """
+        Remove a wallet from a user's portfolio
+        
+        Args:
+            user: The user object
+            address (str): Wallet address
+            chain (str): Blockchain network
+            
+        Returns:
+            tuple: (success_bool, message_or_error)
+        """
+        try:
+            # Find and delete the wallet-user relationship
+            deleted_count, _ = UserWallet.objects.filter(
+                user=user,
+                wallet__address=address,
+                wallet__chain=chain
+            ).delete()
+            
+            # Check if any records were deleted
+            if deleted_count == 0:
+                return False, f"Wallet with address {address} on chain {chain} not found in your portfolio"
+                
+            return True, f"Wallet {address} ({chain}) has been removed from your portfolio"
+            
+        except Exception as e:
+            return False, f"Failed to remove wallet: {str(e)}"
