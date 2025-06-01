@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from ..models import Wallet, UserWallet
 
 class AddWalletSerializer(serializers.Serializer):
     """Serializer for adding a new wallet"""

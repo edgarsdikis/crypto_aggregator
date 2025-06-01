@@ -7,6 +7,7 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),
     path("api/users/", include("apps.users.urls")),
     path("api/wallets/", include("apps.wallets.api.urls")),
+    path("api/portfolio/", include("apps.portfolio.api.urls")),
     # Schema endpoints
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # Swagger UI
