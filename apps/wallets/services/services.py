@@ -48,7 +48,7 @@ class WalletService:
 
         # Create database records for Wallet, UserWallet models
         wallet = self._get_or_create_wallet(address, coingecko_chain_name)
-        user_wallet = self._create_user_wallet(user, wallet, name)
+        self._create_user_wallet(user, wallet, name)
 
         #  database records for WalletTokenBalance model
         self._create_token_balances(wallet, valid_tokens, coingecko_chain_name)

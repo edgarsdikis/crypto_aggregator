@@ -149,6 +149,8 @@ class CoinGeckoSyncService:
                     platforms = serializer.get_chain_contracts(validated_data)
 
                     if platforms:
+                        if coingecko_id == "binancecoin":
+                            platforms['binance-smart-chain'] = 'native'
                         # Create Token record for each chain implementation  
                         for chain, contract_address in platforms.items():
                             if contract_address:
