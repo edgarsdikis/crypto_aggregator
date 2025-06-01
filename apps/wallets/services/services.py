@@ -154,3 +154,40 @@ class WalletService:
             
         except Exception as e:
             return False, f"Failed to remove wallet: {str(e)}"
+
+    def update_wallet_name(self, user, address, chain, new_name):
+        """
+        Update the custom name for a user's wallet
+        
+        Args:
+            user: The user object  
+            address (str): Wallet address
+            chain (str): Blockchain network
+            new_name (str): New custom name (can be empty to remove)
+            
+        Returns:
+            tuple: (success_bool, message_or_error)
+        """
+        try:
+            coingecko_chain_name = self._convert_chain_to_coingecko_name(chain)
+            
+            # Find the user wallet relationship
+            user_wallet = UserWallet.objects.select_related('wallet').get(
+                user=user,
+                wallet__address=address,
+                wallet__chain=coingecko_chain_name
+            )
+            
+            # Update the name
+            if new_name and new_name.strip():
+                user_wallet.name = new_name.strip()
+            else:
+                user_wallet.name = None
+            
+            user_wallet.save()
+            return True, f"Wallet name updated successfully"
+            
+        except UserWallet.DoesNotExist:
+            return False, f"Wallet with address {address} on chain {chain} not found in your portfolio"
+        except Exception as e:
+            return False, f"Failed to update wallet name: {str(e)}"

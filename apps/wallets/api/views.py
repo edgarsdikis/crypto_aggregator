@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import AddWalletSerializer
 from ..services.services import WalletService
 from drf_spectacular.utils import extend_schema
+from config.chain_mapping import NETWORK_MAPPING
 
 class AddWalletView(APIView):
     """Add a new wallet to user's portfolio"""
@@ -169,3 +170,102 @@ class RemoveWalletView(APIView):
                     "error": message
                 }, status=status.HTTP_400_BAD_REQUEST)
 
+
+class SupportedChainsView(APIView):
+    """Get supported blockchain networks"""
+    permission_classes = [AllowAny]
+    
+    @extend_schema(
+        summary="Get supported chains",
+        description="Returns list of supported blockchain networks",
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "supported_chains": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                }
+            }
+        },
+        tags=["Wallets"]
+    )
+    def get(self, request):
+        """
+        Get a list of supported blockchain networks
+        
+        Returns:
+            list: List of supported chains
+        """
+        return Response({
+            "supported_chains": list(NETWORK_MAPPING.keys())
+        })
+
+class UpdateWalletNameView(APIView):
+    """Update custom name for a wallet"""
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Update wallet custom name",
+        description="Update or remove the custom name for a wallet in the authenticated user's portfolio",
+        request=AddWalletSerializer,
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {"type": "string"}
+                }
+            },
+            400: {
+                "type": "object", 
+                "properties": {
+                    "error": {"type": "string"}
+                }
+            },
+            404: {
+                "type": "object",
+                "properties": {
+                    "error": {"type": "string"}
+                }
+            }
+        },
+        tags=["Wallets"]
+    )
+    def put(self, request):
+        """Update wallet custom name"""
+        # Validate input data
+        serializer = AddWalletSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response({
+                "error": "Invalid input data",
+                "details": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        address = serializer.validated_data['address'] # type: ignore
+        chain = serializer.validated_data['chain'] # type: ignore
+        new_name = serializer.validated_data.get('name', '') # type: ignore
+
+        wallet_service = WalletService()
+        success, message = wallet_service.update_wallet_name(
+            user=request.user,
+            address=address,
+            chain=chain,
+            new_name=new_name
+        )
+
+        if success:
+            return Response({
+                "message": message
+            }, status=status.HTTP_200_OK)
+        else:
+            # Determine if it's a not found error or server error
+            if "not found" in message.lower():
+                return Response({
+                    "error": message
+                }, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({
+                    "error": message
+                }, status=status.HTTP_400_BAD_REQUEST)
