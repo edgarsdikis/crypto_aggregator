@@ -17,6 +17,7 @@ app.autodiscover_tasks()
 app.autodiscover_tasks([
     'apps.integrations.coinmarketcap',
     'apps.integrations.coingecko',
+    'apps.integrations.jupiter',
 ])
 
 @app.task(bind=True)

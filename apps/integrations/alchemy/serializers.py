@@ -126,7 +126,7 @@ class AlchemyTokenBalanceSerializer(serializers.Serializer):
     tokenAddress = serializers.CharField(allow_null=True)
     tokenBalance = serializers.CharField()
     tokenMetadata = serializers.DictField()
-    tokenPrices = serializers.ListField(child=serializers.DictField())
+    tokenPrices = serializers.ListField()
 
     def has_price_data(self, obj):
         """Check if token has price data"""

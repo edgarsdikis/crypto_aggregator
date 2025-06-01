@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Token, TokenMaster
+from .models import Token, TokenMaster, SolanaTokenDecimals
 
 @admin.register(TokenMaster)
 class TokenMasterAdmin(admin.ModelAdmin):
@@ -18,4 +18,10 @@ class TokenAdmin(admin.ModelAdmin):
     search_fields = ('master__name', 'chain', 'contract_address')
     list_filter = ['chain']
 
-
+@admin.register(SolanaTokenDecimals)
+class SolanaTokenDecimalsAdmin(admin.ModelAdmin):
+    """
+Admin configuration for SolanaTokenDecimals model
+    """
+    list_display = ('token__contract_address', 'decimals', 'jupiter_updated')
+    search_fields = ['token__contract_address']

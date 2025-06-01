@@ -77,12 +77,5 @@ class AlchemyWalletService:
         else:
             decimals = metadata.get('decimals')
 
-            if decimals is None:
-                # Special case. Have to map the logic. Test Solana for now
-                if network == 'solana-mainnet':
-                    decimals = 6
-                else:
-                    decimals = 18
-
         return raw_balance / (10 ** decimals)
 

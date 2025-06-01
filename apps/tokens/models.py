@@ -47,3 +47,18 @@ class Token(models.Model):
 
     def __str__(self):
         return f"{self.master.symbol} ({self.master.name} on {self.chain} chain)"
+
+
+class SolanaTokenDecimals(models.Model):
+    """Model to store Solana based tokens decimals"""
+    token = models.OneToOneField(
+            Token,
+            on_delete=models.CASCADE,
+            limit_choices_to={'chain': 'solana'}
+            )
+
+    decimals = models.IntegerField()
+    jupiter_updated = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.token}: {self.decimals} decimals"
