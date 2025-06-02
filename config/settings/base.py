@@ -164,7 +164,7 @@ SPECTACULAR_SETTINGS = {
         {'name': 'Authentication', 'description': 'User authentication and JWT token refresh endpoints'},
         {'name': 'User', 'description': 'User profile endpoints'},
         {'name': 'Wallets', 'description': 'Wallet management endpoints'},
-        {'name': 'Tokens', 'description': 'Token and asset data endpoints'},
+        {'name': 'Portfolio', 'description': 'Portfolio management endpoints'},
     ],
     # Use our custom generator
     'DEFAULT_GENERATOR_CLASS': 'spectacular.schema.CustomSchemaGenerator',

@@ -18,7 +18,7 @@ class UserWalletsListView(APIView):
             401: {"type": "object", "properties": {"error": {"type": "string"}}},
             500: {"type": "object", "properties": {"error": {"type": "string"}}}
         },
-        tags=["Wallets"]
+        tags=["Portfolio"]
     )
     def get(self, request):
         """Get all user wallets with USD balances"""
