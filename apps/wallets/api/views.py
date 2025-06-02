@@ -6,6 +6,7 @@ from .serializers import AddWalletSerializer
 from ..services.services import WalletService
 from drf_spectacular.utils import extend_schema
 from config.chain_mapping import NETWORK_MAPPING
+from apps.portfolio.services.service import PortfolioService
 
 class AddWalletView(APIView):
     """Add a new wallet to user's portfolio"""
@@ -269,3 +270,54 @@ class UpdateWalletNameView(APIView):
                 return Response({
                     "error": message
                 }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SyncWalletsView(APIView):
+    """Sync all user wallets with fresh balance data"""
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Sync all user wallets", 
+        description="Fetch fresh balance data for all user wallets from Alchemy API",
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "wallet_address": {"type": "string"},
+                                "chain": {"type": "string"}, 
+                                "token_count": {"type": "integer"},
+                                "status": {"type": "string"},
+                                "error": {"type": "string", "nullable": True}
+                            }
+                        }
+                    },
+                    "summary": {
+                        "type": "object",
+                        "properties": {
+                            "total_wallets": {"type": "integer"},
+                            "successful": {"type": "integer"},
+                            "failed": {"type": "integer"}
+                        }
+                    }
+                }
+            }
+        },
+        tags=["Wallets"]
+    )
+    def get(self, request):
+        """Sync all wallets for the authenticated user"""
+        try:
+            wallet_service = WalletService()
+            sync_results = wallet_service.sync_user_wallets(request.user)
+            
+            return Response(sync_results, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "error": f"Sync failed: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

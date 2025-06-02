@@ -33,7 +33,7 @@ ALCHEMY_NETWORK_MAPPING = {
     },
     'berachain-mainnet': {
         'coingecko_name': 'berachain',
-        'native_decimals': 18
+ 'native_decimals': 18
     },
     'blast-mainnet': {
         'coingecko_name': 'blast',
@@ -57,7 +57,7 @@ ALCHEMY_NETWORK_MAPPING = {
     },
     'ink-mainnet': {
         'coingecko_name': 'ink',
-        'native_decimals': 18  # Verify this
+   'native_decimals': 18  # Verify this
     },
     'lens-mainnet': {
         'coingecko_name': 'lens',
@@ -67,7 +67,7 @@ ALCHEMY_NETWORK_MAPPING = {
         'coingecko_name': 'linea',
         'native_decimals': 18
     },
-    'opt-mainnet': {
+   'opt-mainnet': {
         'coingecko_name': 'optimistic-ethereum',
         'native_decimals': 18
     },
@@ -76,7 +76,7 @@ ALCHEMY_NETWORK_MAPPING = {
         'native_decimals': 18
     },
     'ronin-mainnet': {
-        'coingecko_name': 'ronin',
+   'coingecko_name': 'ronin',
         'native_decimals': 18
     },
     'rootstock-mainnet': {
@@ -140,7 +140,7 @@ NETWORK_MAPPING = {
     'polygon': 'polygon-mainnet',
     'ronin': 'ronin-mainnet',
     'rootstock': 'rootstock-mainnet',
-    'scroll': 'scroll-mainnet',
+ 'scroll': 'scroll-mainnet',
     'solana': 'solana-mainnet',
     'soneium': 'soneium-mainnet',
     'story': 'story-mainnet',
@@ -175,3 +175,35 @@ COINGECKO_NATIVE_TOKEN_MAPPING = {
     # 'story': 'story-mainnet',
 }
 
+
+COINGECKO_TO_ALCHEMY_MAPPING = {
+    'abstract': 'abstract-mainnet',
+    'anime': 'anime-mainnet',
+    'apechain': 'apechain-mainnet',
+    'arbitrum-one': 'arb-mainnet',
+    'arbitrum-nova': 'arbnova-mainnet',
+    'avalanche': 'avax-mainnet',
+    'binance-smart-chain': 'bnb-mainnet',
+    'base': 'base-mainnet',
+    'berachain': 'berachain-mainnet',
+    'blast': 'blast-mainnet',
+    'celo': 'celo-mainnet',
+    'ethereum': 'eth-mainnet',
+    'genesys-network': 'gensyn-testnet',
+    'xdai': 'gnosis-mainnet',
+    'ink': 'ink-mainnet',
+    'lens': 'lens-mainnet',
+    'linea': 'linea-mainnet',
+    'optimistic-ethereum': 'opt-mainnet',
+    'polygon-pos': 'polygon-mainnet',
+    'ronin': 'ronin-mainnet',
+    'rootstock': 'ronin-mainnet',
+    'scroll': 'scroll-mainnet',
+    'solana': 'solana-mainnet',
+    'soneium': 'soneium-mainnet',
+    'story': 'story-mainnet',
+    'unichain': 'unichain-mainnet',
+    'world-chain': 'worldchain-mainnet',
+    'zksync': 'zksync-mainnet',
+    'zora-network': 'zksync-mainnet'
+}
