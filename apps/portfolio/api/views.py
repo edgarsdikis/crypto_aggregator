@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
-from .serializers import WalletListSerializer
+from .serializers import WalletListSerializer, WalletAssetsSerializer, WalletAssetsRequestSerializer
 
 class UserWalletsListView(APIView):
     """Get all wallets for authenticated user with USD balances"""
@@ -34,4 +34,52 @@ class UserWalletsListView(APIView):
         except Exception as e:
             return Response({
                 "error": f"Failed to retrieve wallets: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class WalletAssetsView(APIView):
+    """Get detailed token list for a specific wallet"""
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Get wallet assets",
+        description="Returns detailed token list with balances and USD values for a specific wallet",
+        request=WalletAssetsRequestSerializer,
+        responses={
+            200: WalletAssetsSerializer,
+            400: {"type": "object", "properties": {"error": {"type": "string"}}},
+            403: {"type": "object", "properties": {"error": {"type": "string"}}},
+            404: {"type": "object", "properties": {"error": {"type": "string"}}}
+        },
+        tags=["Portfolio"]
+    )
+    def post(self, request):
+        # Validate input
+        address = request.data.get('address')
+        chain = request.data.get('chain')
+        
+        if not address or not chain:
+            return Response({
+                "error": "Both address and chain are required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            portfolio_service = PortfolioService()
+            wallet_data = portfolio_service.get_wallet_detailed_assets(
+                user=request.user,
+                address=address,
+                chain=chain
+            )
+            
+            serializer = WalletAssetsSerializer(wallet_data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except ValueError as e:
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+        except Exception as e:
+            return Response({
+                "error": f"Failed to retrieve wallet assets: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

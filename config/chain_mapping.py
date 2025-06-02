@@ -207,3 +207,36 @@ COINGECKO_TO_ALCHEMY_MAPPING = {
     'zksync': 'zksync-mainnet',
     'zora-network': 'zksync-mainnet'
 }
+
+
+FRONTEND_TO_COINGECKO_MAPPING = {
+    'abstract': 'abstract',
+    'anime': 'anime',
+    'apechain': 'apechain',
+    'arbitrum-one': 'arbitrum-one',
+    'arbitrum-nova': 'arbitrum-nova',
+    'avalanche': 'avalanche',
+    'bsc': 'binance-smart-chain',
+    'base': 'base',
+    'berachain': 'berachain',
+    'blast': 'blast',
+    'celo': 'celo',
+    'eth': 'ethereum',
+    'genesys': 'genesys-network',
+    'xdai': 'xdai',
+    'ink': 'ink',
+    'lens': 'lens',
+    'linea': 'linea',
+    'optimism': 'optimistic-ethereum',
+    'polygon': 'polygon-pos',
+    'ronin': 'ronin',
+    'rootstock': 'rootstock',
+ 'scroll': 'scroll',
+    'solana': 'solana',
+    'soneium': 'soneium',
+    'story': 'story',
+    'unichain': 'unichain',
+    'worldchain': 'world-chain',
+    'zksync': 'zksync',
+    'zora': 'zora-network',
+}

@@ -1,8 +1,8 @@
 from decimal import Decimal
-from django.db.models import Sum
 from ..models import WalletTokenBalance
 from apps.prices.models import CoingeckoPrice
 from apps.wallets.models import UserWallet
+from config.chain_mapping import FRONTEND_TO_COINGECKO_MAPPING
 
 class PortfolioService:
     """Service for portfolio calculations and USD value computations"""
@@ -100,3 +100,65 @@ class PortfolioService:
             print(f"Error getting user wallets: {e}")
             return []
 
+    def get_wallet_detailed_assets(self, user, address, chain):
+        """
+        Get detailed token list with balances and USD values for a specific wallet
+        
+        Args:
+            user: User instance
+            address: Wallet address string
+            chain: Chain name string (frontend variant)
+            
+        Returns:
+            dict: Formatted wallet data with detailed token list
+            
+        Raises:
+            ValueError: If wallet not found or doesn't belong to user
+        """
+        coingecko_chain_name = FRONTEND_TO_COINGECKO_MAPPING[chain]
+
+        try:
+            user_wallet = UserWallet.objects.select_related('wallet').get(
+                user=user,
+                wallet__address=address,
+                wallet__chain=coingecko_chain_name
+            )
+            wallet = user_wallet.wallet
+            
+            # Get all token balances
+            token_balances = WalletTokenBalance.objects.filter(
+                wallet=wallet
+            ).select_related(
+                'token__master__coingecko_price'
+            )
+            
+            tokens_data = []
+            
+            for token_balance in token_balances:
+                usd_value = self.calculate_token_balance_usd(token_balance)
+
+                token_data = {
+                    "token_details": {
+                        "address": token_balance.token.contract_address,
+                        "chain": token_balance.token.chain,
+                        "symbol": token_balance.token.master.symbol,
+                        "name": token_balance.token.master.name,
+                        "logo": token_balance.token.master.image
+                    },
+                    "token_balance": {
+                        "token_balance_formatted": str(token_balance.balance),
+                        "usd_value": str(usd_value)
+                    }
+                }
+                
+                tokens_data.append(token_data)
+            
+            return {
+                "wallet_name": user_wallet.name,
+                "wallet_address": wallet.address,
+                "wallet_chain": wallet.chain,
+                "tokens": tokens_data
+            }
+            
+        except UserWallet.DoesNotExist:
+            raise ValueError("Wallet not found or doesn't belong to user")

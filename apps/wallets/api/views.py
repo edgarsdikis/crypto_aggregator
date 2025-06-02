@@ -6,7 +6,6 @@ from .serializers import AddWalletSerializer
 from ..services.services import WalletService
 from drf_spectacular.utils import extend_schema
 from config.chain_mapping import NETWORK_MAPPING
-from apps.portfolio.services.service import PortfolioService
 
 class AddWalletView(APIView):
     """Add a new wallet to user's portfolio"""
