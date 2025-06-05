@@ -154,7 +154,7 @@ NETWORK_MAPPING = {
 
 # Chain for coingecko native tokens
 COINGECKO_NATIVE_TOKEN_MAPPING = {
-    'ethereum': ['ethereum', 'arbitrum-one', 'arbitrum-nova', 'base', 'blast', 'linea', 'optimistic-ethereum', 'scroll', 'unichain', 'world-chain', 'zksync', 'zora-network'],
+    'ethereum': ['abstract','ethereum', 'arbitrum-one', 'arbitrum-nova', 'base', 'blast', 'linea', 'optimistic-ethereum', 'scroll', 'unichain', 'world-chain', 'zksync', 'zora-network'],
     'binancecoin': ['binance-smart-chain'],
     'matic-network': ['polygon-pos'],
     'avalanche-2': ['avalanche'],
