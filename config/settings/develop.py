@@ -1,7 +1,7 @@
 from .base import *
 
 DEBUG = True  # Can be True in develop for easier debugging
-ALLOWED_HOSTS = ['https://decen-develop.onrender.com']  # Update with your develop domain
+ALLOWED_HOSTS = ['decen-develop.onrender.com']  # Update with your develop domain
 
 # Security settings - slightly relaxed for develop environment
 SECURE_SSL_REDIRECT = True
