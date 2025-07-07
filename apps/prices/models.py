@@ -16,18 +16,3 @@ class CoingeckoPrice(models.Model):
     def __str__(self):
         return f"CoinGecko price of {self.token_master.symbol} ({self.token_master.name})"
 
-class CoinMarketCapPrice(models.Model):
-    """
-    Model to store coinmarketcap prices of tokens
-    """
-    token_master = models.OneToOneField(
-            TokenMaster,
-            on_delete=models.PROTECT,
-            related_name='coinmarketcap_price'
-            )
-    price_usd = models.DecimalField(max_digits=70, decimal_places=50)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"CoinMarketCap price of {self.token_master.symbol} ({self.token_master.name})"
-

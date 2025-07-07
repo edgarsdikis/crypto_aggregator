@@ -15,7 +15,6 @@ app.autodiscover_tasks()
 
 # ADDITION: Force import specific task modules
 app.autodiscover_tasks([
-    'apps.integrations.coinmarketcap',
     'apps.integrations.coingecko',
     'apps.integrations.jupiter',
 ])

@@ -6,7 +6,6 @@ class TokenMaster(models.Model):
     """
     # External serivce IDs
     coingecko_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    coinmarketcap_id = models.IntegerField(unique=True, null=True, blank=True)
 
     # Core token data (same across all chains)
     symbol = models.CharField(max_length=50)
@@ -15,11 +14,9 @@ class TokenMaster(models.Model):
 
     #Rankings
     coingecko_rank = models.IntegerField(null=True, blank=True)
-    coinmarketcap_rank = models.IntegerField(null=True, blank=True)
 
     # Sync timestamps
     coingecko_updated_at = models.DateTimeField(null=True, blank=True)
-    coinmarketcap_updated_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.symbol} ({self.name})"
@@ -40,7 +37,6 @@ class Token(models.Model):
     
     # Sync timestamps
     coingecko_updated_at = models.DateTimeField(null=True, blank=True)
-    coinmarketcap_updated_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ('chain', 'contract_address')
