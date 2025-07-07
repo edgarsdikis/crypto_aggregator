@@ -19,10 +19,14 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Copy project
 COPY . /app/
 
+# Copy startup script and make it executable
+COPY scripts/start.sh /app/scripts/start.sh
+RUN chmod +x /app/scripts/start.sh
+
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' app_user
 RUN chown -R app_user:app_user /app
 USER app_user
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+# Use startup script
+CMD ["/app/scripts/start.sh"]
