@@ -1,7 +1,25 @@
 from .base import *
 
-DEBUG = True  # Can be True in develop for easier debugging
+DEBUG = False
 ALLOWED_HOSTS = ['decen-develop.onrender.com']  # Update with your develop domain
+
+
+# Reuse database connections instead of creating new ones
+DATABASES['default']['CONN_MAX_AGE'] = 600  # 10 minutes
+
+# Limit concurrent database connections
+DATABASES['default']['OPTIONS'] = {
+    'MAX_CONNS': 3,  # Maximum 3 concurrent connections (down from default 20)
+}
+
+# Disable task result storage (saves memory)
+CELERY_TASK_IGNORE_RESULT = True
+CELERY_RESULT_BACKEND = None
+
+# Use JSON serialization (more memory efficient than pickle)
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
 
 # Security settings - slightly relaxed for develop environment
 SECURE_SSL_REDIRECT = True
