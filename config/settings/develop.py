@@ -3,10 +3,8 @@ from .base import *
 DEBUG = False
 ALLOWED_HOSTS = ['decen-develop.onrender.com']  # Update with your develop domain
 
-# Limit concurrent database connections
-DATABASES['default']['OPTIONS'] = {
-    'MAX_CONNS': 3,  # Maximum 3 concurrent connections (down from default 20)
-}
+# Reuse database connections instead of creating new ones
+DATABASES['default']['CONN_MAX_AGE'] = 600  # 10 minutes - this one is valid
 
 # Disable task result storage (saves memory)
 CELERY_TASK_IGNORE_RESULT = True
