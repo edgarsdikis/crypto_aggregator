@@ -5,6 +5,7 @@ from apps.prices.models import CoingeckoPrice
 from .client import CoinGeckoClient
 from .serializers import CoinGeckoCoinsListSerializer, CoinGeckoMarketDataSerializer
 from config.chain_mapping import COINGECKO_NATIVE_TOKEN_MAPPING
+import time
 
 class CoinGeckoSyncService:
     """Service for syncing CoinGecko token data and prices"""
@@ -24,21 +25,15 @@ class CoinGeckoSyncService:
 
     def sync_market_data(self):
         """
-        Sync TokenMaster records and prices from CoinGecko markets endpoint
-
-        This gets all of the tokens on CoinGecko
+        Process market data page by page to minimize memory usage
         """
-
-        print("Starting CoinGecko market data sync...")
+        print("Starting memory-optimized CoinGecko market data sync...")
         sync_start_time = timezone.now()
 
         try:
-            market_data, failed_pages = self.client.get_coins_markets()
-            unique_market_data = self._remove_duplicates(market_data)
-            success_count, error_count = self._process_market_data(unique_market_data)
+            success_count, error_count = self._process_market_data_chunked()
             self._remove_stale_tokens(sync_start_time)
             
-            print(f"Got {len(market_data)} tokens in total, with {len(unique_market_data)} unique from CoinGecko market API endpoint")
             print(f"Market sync completed: {success_count} successful, {error_count} errors")
             return f"Synced {success_count} tokens, {error_count} errors"
 
@@ -46,38 +41,58 @@ class CoinGeckoSyncService:
             print(f"Market sync failed: {e}")
             raise
 
-    def sync_multi_chain_tokens(self):
-        """
-        Sync cross-chain Token records from CoinGecko list endpoint
+    def _process_market_data_chunked(self):
+        """Process market data page by page to minimize memory usage"""
+        total_success = 0
+        total_errors = 0
+        page = 1
         
-        Creates Token records showing how each TokenMaster exists across multiple chains
-        """
-        print("Starting CoinGecko token multi-chain sync...")
-        try:
-            coins_list = self.client.get_coins_list(include_platform=True)
-            print(f"Processing {len(coins_list)} tokens")
+        while True:
+            print(f"Processing page {page}...")
+            
+            # Fetch one page at a time
+            page_data = self.client.get_coins_markets_single_page(page=page)
+            
+            if not page_data:  # No more data
+                print(f"No data on page {page}, ending pagination")
+                break
+                
+            print(f"Got {len(page_data)} tokens on page {page}")
+            
+            # Process this page immediately
+            success_count, error_count = self._process_market_data_page(page_data)
+            total_success += success_count
+            total_errors += error_count
+            
+            # If we got less than the full page size, we're done
+            if len(page_data) < 250:
+                del page_data
+                break
 
-            success_count, error_count = self._process_multi_chain_tokens(coins_list)
-
-            print(f"Implementations sync completed: {success_count} successful, {error_count} errors")
-            return f"Created {success_count} token implementations, {error_count} errors"
+            # Explicitly delete the page data to free memory
+            del page_data
+            
+            print(f"Page {page} processed: {success_count} success, {error_count} errors")
+            
+                
+            page += 1
+            
+            time.sleep(2.5)
         
-        except Exception as e:
-            print(f"Implementations sync failed: {e}")
-            raise
+        print(f"Total processed: {total_success} success, {total_errors} errors")
+        return total_success, total_errors
 
-    @transaction.atomic
-    def _process_market_data(self, market_data):
+
+    @transaction.atomic  
+    def _process_market_data_page(self, page_data):
         """
-        Process market data and create/update TokenMaster and CoingeckoPrice records
-
-        Args:
-            market_data: List of dictionaries cointaining token data
+        Process a single page of market data
+        This is similar to your existing _process_market_data but for one page
         """
         success_count = 0
         error_count = 0
         
-        for coin_data in market_data:
+        for coin_data in page_data:
             try:
                 # Validate the API response structure
                 serializer = CoinGeckoMarketDataSerializer(data=coin_data)
@@ -87,7 +102,7 @@ class CoinGeckoSyncService:
                     
                     # Create or update TokenMaster
                     token_master, created = TokenMaster.objects.update_or_create(
-                        coingecko_id=validated_data['id'], # type: ignore
+                            coingecko_id=validated_data['id'], # type: ignore
                         defaults={
                             'symbol': validated_data['symbol'], # type: ignore
                             'name': validated_data['name'], # type: ignore
@@ -117,7 +132,27 @@ class CoinGeckoSyncService:
                 error_count += 1
         
         return success_count, error_count
-    
+
+    def sync_multi_chain_tokens(self):
+        """
+        Sync cross-chain Token records from CoinGecko list endpoint
+        
+        Creates Token records showing how each TokenMaster exists across multiple chains
+        """
+        print("Starting CoinGecko token multi-chain sync...")
+        try:
+            coins_list = self.client.get_coins_list(include_platform=True)
+            print(f"Processing {len(coins_list)} tokens")
+
+            success_count, error_count = self._process_multi_chain_tokens(coins_list)
+
+            print(f"Implementations sync completed: {success_count} successful, {error_count} errors")
+            return f"Created {success_count} token implementations, {error_count} errors"
+        
+        except Exception as e:
+            print(f"Implementations sync failed: {e}")
+            raise
+
     @transaction.atomic  
     def _process_multi_chain_tokens(self, coins_list):
         """

@@ -90,71 +90,25 @@ class CoinGeckoClient:
 
         return self._make_request(endpoint, params)
     
-    def get_coins_markets(self, vs_currency='usd', per_page=250, order='market_cap_desc', precision='full'):
+    def get_coins_markets_single_page(self, page=1, vs_currency='usd', per_page=250, order='market_cap_desc', precision='full'):
         """
-        Get market data for all coins with pagination
-
-        Args:
-            vs_currency: Target currency (default: 'usd')
-            per_page: Results per page (max: 250)
-            order: Sort order (default: 'market_cap_desc')
-            precision: Price precision (default: 'full')
-
-        Returns: List of all coin market data from all pages
+        Get market data for a single page to minimize memory usage
+        
+        Returns: Single page of coin market data or empty list if no more data
         """
         endpoint = "/coins/markets"
-        all_coins = []
-        failed_pages = []  # Track what we missed
-        page = 1
+        params = {
+            'vs_currency': vs_currency,
+            'per_page': per_page,
+            'page': page,
+            'order': order,
+            'sparkline': 'false',
+            'price_change_percentage': '1h',
+            'precision': precision
+        }
         
-        while True:
-            max_retries = 2
-            retry_count = 0
-            page_success = False
-            
-            print(f"Page number {page}")
-
-            while retry_count <= max_retries and not page_success:
-                params = {
-                    'vs_currency': vs_currency,
-                    'per_page': per_page,
-                    'page': page,
-                    'order': order,
-                    'sparkline': 'false',
-                    'price_change_percentage': '1h',
-                    'precision': precision
-                }
-                
-                try:
-                    page_data = self._make_request(endpoint, params)
-                    
-                    if not page_data:
-                        return all_coins, failed_pages
-                        
-                    if len(page_data) < per_page:
-                        all_coins.extend(page_data)
-                        return all_coins, failed_pages
-
-                    all_coins.extend(page_data)
-                    page_success = True
-                    
-                except CoinGeckoRateLimitError:
-                    print(f"Rate limit hit on page {page}, waiting 60 seconds...")
-                    time.sleep(60)
-                    retry_count += 1
-                    
-                except Exception as e:
-                    print(f"Error on page {page} (attempt {retry_count + 1}): {e}")
-                    retry_count += 1
-                    if retry_count <= max_retries:
-                        time.sleep(5)
-            
-            if not page_success:
-                failed_pages.append(page)
-                print(f"Page {page} failed after {max_retries + 1} attempts, skipping...")
-            
-            if page_success and page > 1:
-                time.sleep(2.5)
-                
-            page += 1
-
+        try:
+            return self._make_request(endpoint, params)
+        except Exception as e:
+            print(f"Error fetching page {page}: {e}")
+            return []
