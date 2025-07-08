@@ -20,6 +20,7 @@ requests==2.32.3
 # Deployment
 gunicorn==23.0.0
 whitenoise==6.9.0
+psutil==7.0.0
 
 # Testing and development
 pytest==8.0.0
