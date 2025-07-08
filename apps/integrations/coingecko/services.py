@@ -28,11 +28,11 @@ class CoinGeckoSyncService:
         Process market data page by page to minimize memory usage
         """
         print("Starting memory-optimized CoinGecko market data sync...")
-        sync_start_time = timezone.now()
+        # sync_start_time = timezone.now()
 
         try:
             success_count, error_count = self._process_market_data_chunked()
-            self._remove_stale_tokens(sync_start_time)
+            # self._remove_stale_tokens(sync_start_time)
             
             print(f"Market sync completed: {success_count} successful, {error_count} errors")
             return f"Synced {success_count} tokens, {error_count} errors"
