@@ -83,7 +83,7 @@ class CoinGeckoSyncService:
         return total_success, total_errors
 
 
-    @transaction.atomic  
+    # @transaction.atomic  
     def _process_market_data_page(self, page_data):
         """
         Process a single page of market data
