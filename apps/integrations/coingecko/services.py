@@ -6,130 +6,174 @@ from .client import CoinGeckoClient
 from .serializers import CoinGeckoCoinsListSerializer, CoinGeckoMarketDataSerializer
 from config.chain_mapping import COINGECKO_NATIVE_TOKEN_MAPPING
 import time
+import psutil
+import os
+import gc
+import logging
+from django.db import connection
+from django.utils import timezone
+
+# Get Django logger
+logger = logging.getLogger(__name__)
 
 class CoinGeckoSyncService:
-    """Service for syncing CoinGecko token data and prices"""
-
     def __init__(self):
         self.client = CoinGeckoClient()
+        self.process = psutil.Process(os.getpid())
     
-    def sync_all(self):
-        """
-        Complete sync: market data first, then implementations
-        """
-        print("Starting complete CoinGecko sync...")
-        market_result = self.sync_market_data()
-        # multi_chain_result = self.sync_multi_chain_tokens()
+    def _log_memory(self, context):
+        """Memory logging that works with DEBUG = False"""
+        memory_info = self.process.memory_info()
+        memory_mb = memory_info.rss / 1024 / 1024
+        db_queries = len(connection.queries) if hasattr(connection, 'queries') else 0
         
-        return f"Complete sync: {market_result}"
+        logger.warning(f"🔍 MEMORY [{context}]: {memory_mb:.1f} MB | DB: {db_queries} | Growth: {self._memory_growth(memory_mb)}")
+        return memory_mb
+    
+    def _memory_growth(self, current_mb):
+        """Track memory growth"""
+        if not hasattr(self, '_initial_memory'):
+            self._initial_memory = current_mb
+            return "BASELINE"
+        
+        growth = current_mb - self._initial_memory
+        if growth > 300:
+            return f"+{growth:.1f}MB 🚨CRITICAL"
+        elif growth > 200:
+            return f"+{growth:.1f}MB ⚠️WARNING" 
+        elif growth > 100:
+            return f"+{growth:.1f}MB 📈HIGH"
+        else:
+            return f"+{growth:.1f}MB ✅OK"
+
+    def sync_all(self):
+        """Complete sync with logging"""
+        logger.warning("🚀 COINGECKO SYNC STARTING")
+        self._log_memory("SYNC_START")
+        
+        market_result = self.sync_market_data()
+        self._log_memory("MARKET_COMPLETE")
+        
+        logger.warning(f"✅ COINGECKO SYNC COMPLETE: {market_result}")
+        return f"Market sync: {market_result}"
 
     def sync_market_data(self):
-        """
-        Process market data page by page to minimize memory usage
-        """
-        print("Starting memory-optimized CoinGecko market data sync...")
-        # sync_start_time = timezone.now()
-
+        """Market data sync with detailed logging"""
+        logger.warning("📊 MARKET DATA SYNC STARTING")
+        self._log_memory("MARKET_SYNC_START")
+        
         try:
             success_count, error_count = self._process_market_data_chunked()
-            # self._remove_stale_tokens(sync_start_time)
+            self._log_memory("MARKET_SYNC_END")
             
-            print(f"Market sync completed: {success_count} successful, {error_count} errors")
+            logger.warning(f"📊 Market sync completed: {success_count} successful, {error_count} errors")
             return f"Synced {success_count} tokens, {error_count} errors"
 
         except Exception as e:
-            print(f"Market sync failed: {e}")
+            self._log_memory(f"MARKET_SYNC_ERROR")
+            logger.error(f"💥 Market sync failed: {e}")
             raise
 
     def _process_market_data_chunked(self):
-        """Process market data page by page to minimize memory usage"""
+        """Chunked processing with detailed logging"""
         total_success = 0
         total_errors = 0
         page = 1
         
+        self._log_memory("CHUNKED_START")
+        
         while True:
-            print(f"Processing page {page}...")
+            self._log_memory(f"PAGE_{page}_FETCH_START")
             
-            # Fetch one page at a time
             page_data = self.client.get_coins_markets_single_page(page=page)
             
-            if not page_data:  # No more data
-                print(f"No data on page {page}, ending pagination")
+            if not page_data:
+                self._log_memory(f"PAGE_{page}_NO_DATA")
                 break
-                
-            print(f"Got {len(page_data)} tokens on page {page}")
             
-            # Process this page immediately
+            self._log_memory(f"PAGE_{page}_FETCH_END_({len(page_data)}_tokens)")
+            
+            # Process page
             success_count, error_count = self._process_market_data_page(page_data)
             total_success += success_count
             total_errors += error_count
             
-            # If we got less than the full page size, we're done
-            if len(page_data) < 250:
-                del page_data
-                break
-
-            # Explicitly delete the page data to free memory
+            self._log_memory(f"PAGE_{page}_PROCESS_END")
+            
+            # Check if last page
+            is_last_page = len(page_data) < 250
+            
+            # Delete page data
             del page_data
+            self._log_memory(f"PAGE_{page}_DELETE_END")
             
-            print(f"Page {page} processed: {success_count} success, {error_count} errors")
+            # Garbage collect every 5 pages
+            if page % 5 == 0:
+                collected = gc.collect()
+                logger.warning(f"🗑️ PAGE {page} GC: freed {collected} objects")
+                self._log_memory(f"PAGE_{page}_GC_END")
             
+            logger.warning(f"📄 PAGE {page} COMPLETE: {success_count} success, {error_count} errors")
+            
+            if is_last_page:
+                self._log_memory(f"PAGE_{page}_LAST_PAGE_EXIT")
+                break
                 
             page += 1
-            
             time.sleep(2.5)
         
-        print(f"Total processed: {total_success} success, {total_errors} errors")
+        self._log_memory("CHUNKED_COMPLETE")
+        logger.warning(f"📊 TOTAL: {total_success} success, {total_errors} errors")
         return total_success, total_errors
 
-
-    # @transaction.atomic  
     def _process_market_data_page(self, page_data):
-        """
-        Process a single page of market data
-        This is similar to your existing _process_market_data but for one page
-        """
+        """Process page with batch logging - FIXED TokenMaster issue"""
         success_count = 0
         error_count = 0
         
-        for coin_data in page_data:
-            try:
-                # Validate the API response structure
-                serializer = CoinGeckoMarketDataSerializer(data=coin_data)
-                
-                if serializer.is_valid():
-                    validated_data = serializer.validated_data
+        # Process in batches of 50
+        for i in range(0, len(page_data), 50):
+            batch = page_data[i:i + 50]
+            batch_num = (i // 50) + 1
+            
+            for coin_data in batch:
+                try:
+                    serializer = CoinGeckoMarketDataSerializer(data=coin_data)
                     
-                    # Create or update TokenMaster
-                    token_master, created = TokenMaster.objects.update_or_create(
-                            coingecko_id=validated_data['id'], # type: ignore
-                        defaults={
-                            'symbol': validated_data['symbol'], # type: ignore
-                            'name': validated_data['name'], # type: ignore
-                            'image': validated_data['image'], # type: ignore
-                            'coingecko_rank': validated_data['market_cap_rank'], # type: ignore
-                            'coingecko_updated_at': timezone.now(),
-                        }
-                    )
-                    
-                    # Create or update price records
-                    CoingeckoPrice.objects.update_or_create(
-                        token_master=token_master,
-                        defaults={
-                            'price_usd': validated_data['current_price'], # type: ignore
-                        }
-                    )
-                    
-                    success_count += 1
-                    
-                else:
-                    # Handle validation errors
-                    print(f"Validation error for {coin_data.get('id', 'unknown')}: {serializer.errors}")
+                    if serializer.is_valid():
+                        validated_data = serializer.validated_data
+                        
+                        # FIXED: Capture the token_master from update_or_create
+                        token_master, created = TokenMaster.objects.update_or_create(
+                            coingecko_id=validated_data['id'],
+                            defaults={
+                                'symbol': validated_data['symbol'],
+                                'name': validated_data['name'],
+                                'image': validated_data['image'],
+                                'coingecko_rank': validated_data['market_cap_rank'],
+                                'coingecko_updated_at': timezone.now(),
+                            }
+                        )
+                        
+                        # FIXED: Now token_master is properly defined
+                        CoingeckoPrice.objects.update_or_create(
+                            token_master=token_master,
+                            defaults={
+                                'price_usd': validated_data['current_price'],
+                            }
+                        )
+                        
+                        success_count += 1
+                        
+                    else:
+                        error_count += 1
+                        
+                except Exception as e:
                     error_count += 1
-                    
-            except Exception as e:
-                print(f"Database error processing {coin_data.get('id', 'unknown')}: {e}")
-                error_count += 1
+            
+            # Log every batch
+            self._log_memory(f"BATCH_{batch_num}_END")
+            del batch
         
         return success_count, error_count
 

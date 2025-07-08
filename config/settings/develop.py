@@ -3,6 +3,24 @@ from .base import *
 DEBUG = False
 ALLOWED_HOSTS = ['decen-develop.onrender.com']
 
+# Add this to your develop.py to guarantee logging works
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'apps.integrations.coingecko.services': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}
+
 # Reuse database connections instead of creating new ones
 DATABASES['default']['CONN_MAX_AGE'] = 600  # 10 minutes
 
