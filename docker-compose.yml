@@ -45,7 +45,7 @@ services:
       dockerfile: Dockerfile
       args:
         - DEV=true
-    command: celery -A config worker -l INFO
+    command: celery -A config worker -l INFO --concurrency=1 --prefetch-multiplier=1
     volumes:
       - .:/app
     depends_on:
