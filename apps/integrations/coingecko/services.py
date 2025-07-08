@@ -19,9 +19,9 @@ class CoinGeckoSyncService:
         """
         print("Starting complete CoinGecko sync...")
         market_result = self.sync_market_data()
-        multi_chain_result = self.sync_multi_chain_tokens()
+        # multi_chain_result = self.sync_multi_chain_tokens()
         
-        return f"Complete sync: {market_result}, {multi_chain_result}"
+        return f"Complete sync: {market_result}"
 
     def sync_market_data(self):
         """
