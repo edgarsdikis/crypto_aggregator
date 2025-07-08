@@ -236,13 +236,3 @@ class CoinGeckoSyncService:
             stale_tokens.delete()
             print(f"Removed {stale_count} stale tokens")
 
-    def _remove_duplicates(self, market_data):
-        """Remove duplicates from a list
-
-            Args:
-                market_data: List of dictionaries cointaining token data
-
-            Returns:
-                List of unique dictionaries
-        """
-        return list({coin['id']: coin for coin in market_data}.values())

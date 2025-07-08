@@ -107,11 +107,11 @@ CELERY_BEAT_SCHEDULE = {
 
     'sync-coingecko-tokenmaster-token-coingeckoprice': {
         'task': 'apps.integrations.coingecko.tasks.sync_coingecko_tokenmaster_token_coingeckoprices_models',
-        'schedule': crontab(minute=12, hour='16'), # type: ignore
+        'schedule': crontab(minute=27, hour='16'), # type: ignore
         },
     'sync-solana-decimals': {
         'task': 'apps.integrations.jupiter.tasks.sync_jupiter_solana_decimals_model',
-        'schedule': crontab(minute=22, hour='16'), # type: ignore
+        'schedule': crontab(minute=37, hour='16'), # type: ignore
         },
 }
 CELERY_TIMEZONE = 'Europe/Riga'
