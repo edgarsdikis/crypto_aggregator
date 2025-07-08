@@ -3,10 +3,6 @@ from .base import *
 DEBUG = False
 ALLOWED_HOSTS = ['decen-develop.onrender.com']  # Update with your develop domain
 
-
-# Reuse database connections instead of creating new ones
-DATABASES['default']['CONN_MAX_AGE'] = 600  # 10 minutes
-
 # Limit concurrent database connections
 DATABASES['default']['OPTIONS'] = {
     'MAX_CONNS': 3,  # Maximum 3 concurrent connections (down from default 20)
