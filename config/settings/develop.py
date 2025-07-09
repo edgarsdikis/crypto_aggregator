@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['decen-develop.onrender.com']
 
 # Add this to your develop.py to guarantee logging works
