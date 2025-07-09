@@ -15,12 +15,13 @@ class CoinGeckoSyncService:
 
     def sync_all(self):
         """Complete sync"""
+        sync_start_time = timezone.now()
         market_result = self.sync_market_data()
-        
-        return f"Market sync: {market_result}"
+        deleted_count, _ = self._remove_stale_tokens(sync_start_time)        
+        return f"Market sync: {market_result}.  Removed {deleted_count} stale tokens"
 
     def sync_market_data(self):
-        """Market data sync with detailed logging"""
+        """Market data sync"""
         
         try:
             success_count, error_count = self._process_market_data_chunked()
@@ -31,7 +32,7 @@ class CoinGeckoSyncService:
             raise
 
     def _process_market_data_chunked(self):
-        """Chunked processing with detailed logging"""
+        """Chunked market data processing"""
         total_success = 0
         total_errors = 0
         page = 1
@@ -204,8 +205,5 @@ class CoinGeckoSyncService:
             coingecko_id__isnull=False,
             coingecko_updated_at__lt=sync_start_time
         )
-        stale_count = stale_tokens.count()
-        if stale_count > 0:
-            stale_tokens.delete()
-            print(f"Removed {stale_count} stale tokens")
+        return stale_tokens.delete()
 
