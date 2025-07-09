@@ -107,7 +107,7 @@ CELERY_BEAT_SCHEDULE = {
 
     'sync-coingecko-tokenmaster-token-coingeckoprice': {
         'task': 'apps.integrations.coingecko.tasks.sync_coingecko_tokenmaster_token_coingeckoprices_models',
-        'schedule': crontab(minute=48, hour='18'), # type: ignore
+        'schedule': crontab(minute=56, hour='19'), # type: ignore
         },
     'sync-solana-decimals': {
         'task': 'apps.integrations.jupiter.tasks.sync_jupiter_solana_decimals_model',

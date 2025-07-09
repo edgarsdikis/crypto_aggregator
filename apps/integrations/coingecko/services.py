@@ -159,17 +159,14 @@ class CoinGeckoSyncService:
                 serializer = CoinGeckoCoinsListSerializer(data=coin_data)
                 if serializer.is_valid():
                     validated_data = serializer.validated_data
-                    coingecko_id = validated_data['id']
+                    coingecko_id = validated_data['id'] # type: ignore
 
-                    # Use pre-fetched TokenMaster (no individual DB query)
                     token_master = token_masters.get(coingecko_id)
                     if not token_master:
                         error_count += 1
                         continue
 
-                    # Rest of your logic unchanged
-                    platforms = serializer.get_chain_contracts(validated_data)
-
+                    platforms = validated_data.get("platforms", {}) # type: ignore
                     if platforms:
                         if coingecko_id == "binancecoin":
                             platforms['binance-smart-chain'] = 'native'
