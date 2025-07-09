@@ -5,73 +5,74 @@ from apps.prices.models import CoingeckoPrice
 from .client import CoinGeckoClient
 from .serializers import CoinGeckoCoinsListSerializer, CoinGeckoMarketDataSerializer
 from config.chain_mapping import COINGECKO_NATIVE_TOKEN_MAPPING
-import time
-import psutil
-import os
-import gc
-import logging
-from django.db import connection
 from django.utils import timezone
+import time
+import gc
+# import os
+# import psutil
+# import logging
+# from django.db import connection
 
 # Get Django logger
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 class CoinGeckoSyncService:
     def __init__(self):
         self.client = CoinGeckoClient()
-        self.process = psutil.Process(os.getpid())
+        # self.process = psutil.Process(os.getpid())
     
-    def _log_memory(self, context):
-        """Memory logging that works with DEBUG = False"""
-        memory_info = self.process.memory_info()
-        memory_mb = memory_info.rss / 1024 / 1024
-        db_queries = len(connection.queries) if hasattr(connection, 'queries') else 0
-        
-        logger.warning(f"🔍 MEMORY [{context}]: {memory_mb:.1f} MB | DB: {db_queries} | Growth: {self._memory_growth(memory_mb)}")
-        return memory_mb
-    
-    def _memory_growth(self, current_mb):
-        """Track memory growth"""
-        if not hasattr(self, '_initial_memory'):
-            self._initial_memory = current_mb
-            return "BASELINE"
-        
-        growth = current_mb - self._initial_memory
-        if growth > 300:
-            return f"+{growth:.1f}MB 🚨CRITICAL"
-        elif growth > 200:
-            return f"+{growth:.1f}MB ⚠️WARNING" 
-        elif growth > 100:
-            return f"+{growth:.1f}MB 📈HIGH"
-        else:
-            return f"+{growth:.1f}MB ✅OK"
+    # def _log_memory(self, context):
+    #     """Memory logging that works with DEBUG = False"""
+    #     memory_info = self.process.memory_info()
+    #     memory_mb = memory_info.rss / 1024 / 1024
+    #     db_queries = len(connection.queries) if hasattr(connection, 'queries') else 0
+    #
+    #     logger.warning(f"🔍 MEMORY [{context}]: {memory_mb:.1f} MB | DB: {db_queries} | Growth: {self._memory_growth(memory_mb)}")
+    #     return memory_mb
+    #
+    # def _memory_growth(self, current_mb):
+    #     """Track memory growth"""
+    #     if not hasattr(self, '_initial_memory'):
+    #         self._initial_memory = current_mb
+    #         return "BASELINE"
+    #
+    #     growth = current_mb - self._initial_memory
+    #     if growth > 300:
+    #         return f"+{growth:.1f}MB 🚨CRITICAL"
+    #     elif growth > 200:
+    #         return f"+{growth:.1f}MB ⚠️WARNING" 
+    #     elif growth > 100:
+    #         return f"+{growth:.1f}MB 📈HIGH"
+    #     else:
+    #         return f"+{growth:.1f}MB ✅OK"
 
     def sync_all(self):
         """Complete sync with logging"""
-        logger.warning("🚀 COINGECKO SYNC STARTING")
-        self._log_memory("SYNC_START")
+        # logger.warning("🚀 COINGECKO SYNC STARTING")
+        # self._log_memory("SYNC_START")
         
         market_result = self.sync_market_data()
-        self._log_memory("MARKET_COMPLETE")
+        # self._log_memory("MARKET_COMPLETE")
         
-        logger.warning(f"✅ COINGECKO SYNC COMPLETE: {market_result}")
+        # logger.warning(f"✅ COINGECKO SYNC COMPLETE: {market_result}")
         return f"Market sync: {market_result}"
 
     def sync_market_data(self):
         """Market data sync with detailed logging"""
-        logger.warning("📊 MARKET DATA SYNC STARTING")
-        self._log_memory("MARKET_SYNC_START")
+        # logger.warning("📊 MARKET DATA SYNC STARTING")
+        # self._log_memory("MARKET_SYNC_START")
         
         try:
             success_count, error_count = self._process_market_data_chunked()
-            self._log_memory("MARKET_SYNC_END")
+            # self._log_memory("MARKET_SYNC_END")
             
-            logger.warning(f"📊 Market sync completed: {success_count} successful, {error_count} errors")
+            # logger.warning(f"📊 Market sync completed: {success_count} successful, {error_count} errors")
             return f"Synced {success_count} tokens, {error_count} errors"
 
         except Exception as e:
-            self._log_memory(f"MARKET_SYNC_ERROR")
-            logger.error(f"💥 Market sync failed: {e}")
+            # self._log_memory(f"MARKET_SYNC_ERROR")
+            # logger.error(f"💥 Market sync failed: {e}")
+            print(f"sync_market_data failed: {e}")
             raise
 
     def _process_market_data_chunked(self):
@@ -80,50 +81,50 @@ class CoinGeckoSyncService:
         total_errors = 0
         page = 1
         
-        self._log_memory("CHUNKED_START")
+        # self._log_memory("CHUNKED_START")
         
         while True:
-            self._log_memory(f"PAGE_{page}_FETCH_START")
+            # self._log_memory(f"PAGE_{page}_FETCH_START")
             
             page_data = self.client.get_coins_markets_single_page(page=page)
             
             if not page_data:
-                self._log_memory(f"PAGE_{page}_NO_DATA")
+                # self._log_memory(f"PAGE_{page}_NO_DATA")
                 break
             
-            self._log_memory(f"PAGE_{page}_FETCH_END_({len(page_data)}_tokens)")
+            # self._log_memory(f"PAGE_{page}_FETCH_END_({len(page_data)}_tokens)")
             
             # Process page
             success_count, error_count = self._process_market_data_page(page_data)
             total_success += success_count
             total_errors += error_count
             
-            self._log_memory(f"PAGE_{page}_PROCESS_END")
+            # self._log_memory(f"PAGE_{page}_PROCESS_END")
             
             # Check if last page
             is_last_page = len(page_data) < 250
             
             # Delete page data
             del page_data
-            self._log_memory(f"PAGE_{page}_DELETE_END")
+            # self._log_memory(f"PAGE_{page}_DELETE_END")
             
             # Garbage collect every 5 pages
             if page % 5 == 0:
                 collected = gc.collect()
-                logger.warning(f"🗑️ PAGE {page} GC: freed {collected} objects")
-                self._log_memory(f"PAGE_{page}_GC_END")
+                # logger.warning(f"🗑️ PAGE {page} GC: freed {collected} objects")
+                # self._log_memory(f"PAGE_{page}_GC_END")
             
-            logger.warning(f"📄 PAGE {page} COMPLETE: {success_count} success, {error_count} errors")
+            # logger.warning(f"📄 PAGE {page} COMPLETE: {success_count} success, {error_count} errors")
             
             if is_last_page:
-                self._log_memory(f"PAGE_{page}_LAST_PAGE_EXIT")
+                # self._log_memory(f"PAGE_{page}_LAST_PAGE_EXIT")
                 break
                 
             page += 1
             time.sleep(2.5)
         
-        self._log_memory("CHUNKED_COMPLETE")
-        logger.warning(f"📊 TOTAL: {total_success} success, {total_errors} errors")
+        # self._log_memory("CHUNKED_COMPLETE")
+        # logger.warning(f"📊 TOTAL: {total_success} success, {total_errors} errors")
         return total_success, total_errors
 
     def _process_market_data_page(self, page_data):
@@ -172,7 +173,7 @@ class CoinGeckoSyncService:
                     error_count += 1
             
             # Log every batch
-            self._log_memory(f"BATCH_{batch_num}_END")
+            # self._log_memory(f"BATCH_{batch_num}_END")
             del batch
         
         return success_count, error_count
@@ -274,7 +275,6 @@ class CoinGeckoSyncService:
             coingecko_id__isnull=False,
             coingecko_updated_at__lt=sync_start_time
         )
-        
         stale_count = stale_tokens.count()
         if stale_count > 0:
             stale_tokens.delete()

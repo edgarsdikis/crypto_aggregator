@@ -1,5 +1,4 @@
 import requests
-import time
 from django.conf import settings
 from .exceptions import (
         CoinGeckoError,
