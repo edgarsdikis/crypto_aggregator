@@ -110,93 +110,100 @@ class CoinGeckoSyncService:
         return success_count, error_count
 
     def sync_multi_chain_tokens(self):
-        """
-        Sync cross-chain Token records from CoinGecko list endpoint
-        
-        Creates Token records showing how each TokenMaster exists across multiple chains
-        """
+        """Memory-efficient multi-chain sync"""
         print("Starting CoinGecko token multi-chain sync...")
         try:
             coins_list = self.client.get_coins_list(include_platform=True)
-            print(f"Processing {len(coins_list)} tokens")
 
-            success_count, error_count = self._process_multi_chain_tokens(coins_list)
+            total_success = 0
+            total_errors = 0
+            chunk_size = 100  # Process 100 tokens at a time
 
-            print(f"Implementations sync completed: {success_count} successful, {error_count} errors")
-            return f"Created {success_count} token implementations, {error_count} errors"
-        
+            # Process in chunks
+            for i in range(0, len(coins_list), chunk_size):
+                chunk = coins_list[i:i + chunk_size]
+                success_count, error_count = self._process_multi_chain_tokens_chunk(chunk)
+                
+                total_success += success_count
+                total_errors += error_count
+                
+                # Clean up chunk
+                del chunk
+                
+                # Garbage collect every 5 chunks
+                if (i // chunk_size + 1) % 5 == 0:
+                    gc.collect()
+
+            print(f"Multi-chain sync completed: {total_success} successful, {total_errors} errors")
+            return f"Created {total_success} token implementations, {total_errors} errors"
+
         except Exception as e:
-            print(f"Implementations sync failed: {e}")
+            print(f"Multi-chain sync failed: {e}")
             raise
 
-    @transaction.atomic  
-    def _process_multi_chain_tokens(self, coins_list):
-        """
-        Process coins list and create Token records for each multi-chain TokenMaster token
-        Creates native Token records for tokens without platform contracts
-
-        Args:
-            coins_list: List of dictionaries cointaining token data and chain dictionaries
-        """
+    @transaction.atomic
+    def _process_multi_chain_tokens_chunk(self, chunk):
+        """Process a chunk of coins with batch database lookups"""
         success_count = 0
         error_count = 0
         
-        for coin_data in coins_list:
+        # Batch lookup TokenMasters for this chunk
+        coingecko_ids = [coin['id'] for coin in chunk if 'id' in coin]
+        token_masters = {
+            tm.coingecko_id: tm 
+            for tm in TokenMaster.objects.filter(coingecko_id__in=coingecko_ids)
+        }
+        
+        for coin_data in chunk:
             try:
-                # Validate the API response structure
                 serializer = CoinGeckoCoinsListSerializer(data=coin_data)
                 if serializer.is_valid():
                     validated_data = serializer.validated_data
-                    coingecko_id = validated_data['id'] # type: ignore
+                    coingecko_id = validated_data['id']
 
-                        # Find the corresponding TokenMaster
-                    try:
-                        token_master = TokenMaster.objects.get(coingecko_id=coingecko_id)
-                    except TokenMaster.DoesNotExist:
+                    # Use pre-fetched TokenMaster (no individual DB query)
+                    token_master = token_masters.get(coingecko_id)
+                    if not token_master:
                         error_count += 1
                         continue
 
-                    # Extract platform/contract data
+                    # Rest of your logic unchanged
                     platforms = serializer.get_chain_contracts(validated_data)
 
                     if platforms:
                         if coingecko_id == "binancecoin":
                             platforms['binance-smart-chain'] = 'native'
-                        # Create Token record for each chain implementation  
+                        
                         for chain, contract_address in platforms.items():
                             if contract_address:
                                 Token.objects.update_or_create(
-                                        master=token_master,
-                                        chain=chain,
-                                        defaults={
-                                            'contract_address': contract_address,
-                                            'coingecko_updated_at': timezone.now(),
-                                        }
-                                    )
+                                    master=token_master,
+                                    chain=chain,
+                                    defaults={
+                                        'contract_address': contract_address,
+                                        'coingecko_updated_at': timezone.now(),
+                                    }
+                                )
                                 success_count += 1
                     else:
-                        # No platfors = native token
+                        # Handle native tokens
                         if coingecko_id in COINGECKO_NATIVE_TOKEN_MAPPING:
                             chains = COINGECKO_NATIVE_TOKEN_MAPPING[coingecko_id]
-
                             for chain in chains:
-                                # Create record for each chain where this token is native
                                 Token.objects.update_or_create(
-                                        master=token_master,
-                                        chain=chain,
-                                        defaults={
-                                            'contract_address': 'native',  # Native tokens have no contract
-                                            'coingecko_updated_at': timezone.now(),
-                                            }
-                                        )
+                                    master=token_master,
+                                    chain=chain,
+                                    defaults={
+                                        'contract_address': 'native',
+                                        'coingecko_updated_at': timezone.now(),
+                                    }
+                                )
                                 success_count += 1
-
                 else:
-                    print(f"Validation error for {coin_data['id']}: {serializer.errors}")
                     error_count += 1
-                
+                    
             except Exception as e:
-                print(f"Error processing implementations for {coin_data['id']}: {e}")
+                print(f"Error processing {coin_data.get('id', 'unknown')}: {e}")
                 error_count += 1
         
         return success_count, error_count
