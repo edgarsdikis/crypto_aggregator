@@ -143,7 +143,6 @@ class CoinGeckoSyncService:
 
     @transaction.atomic
     def _process_multi_chain_tokens_chunk(self, chunk):
-        """Process a chunk of coins with batch database lookups"""
         success_count = 0
         error_count = 0
         
@@ -174,10 +173,10 @@ class CoinGeckoSyncService:
                         for chain, contract_address in platforms.items():
                             if contract_address:
                                 Token.objects.update_or_create(
-                                    master=token_master,
                                     chain=chain,
+                                    contract_address=contract_address,
                                     defaults={
-                                        'contract_address': contract_address,
+                                        'master': token_master,
                                         'coingecko_updated_at': timezone.now(),
                                     }
                                 )
@@ -188,10 +187,10 @@ class CoinGeckoSyncService:
                             chains = COINGECKO_NATIVE_TOKEN_MAPPING[coingecko_id]
                             for chain in chains:
                                 Token.objects.update_or_create(
-                                    master=token_master,
                                     chain=chain,
+                                    contract_address='native',
                                     defaults={
-                                        'contract_address': 'native',
+                                        'master': token_master,
                                         'coingecko_updated_at': timezone.now(),
                                     }
                                 )
@@ -202,9 +201,8 @@ class CoinGeckoSyncService:
             except Exception as e:
                 print(f"Error processing {coin_data.get('id', 'unknown')}: {e}")
                 error_count += 1
-        
-        return success_count, error_count
-
+    
+    return success_count, error_count
     def _remove_stale_tokens(self, sync_start_time):
         stale_tokens = TokenMaster.objects.filter(
             coingecko_id__isnull=False,
