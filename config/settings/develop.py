@@ -38,6 +38,7 @@ MIDDLEWARE = [
 # Disable task result storage (saves memory)
 CELERY_TASK_IGNORE_RESULT = True
 CELERY_RESULT_BACKEND = None
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1
 
 # Use JSON serialization (more memory efficient than pickle)
 CELERY_TASK_SERIALIZER = 'json'
