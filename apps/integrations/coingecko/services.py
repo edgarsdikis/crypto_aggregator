@@ -202,7 +202,8 @@ class CoinGeckoSyncService:
                 print(f"Error processing {coin_data.get('id', 'unknown')}: {e}")
                 error_count += 1
     
-    return success_count, error_count
+        return success_count, error_count
+
     def _remove_stale_tokens(self, sync_start_time):
         stale_tokens = TokenMaster.objects.filter(
             coingecko_id__isnull=False,
