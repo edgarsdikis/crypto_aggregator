@@ -107,11 +107,11 @@ CELERY_BEAT_SCHEDULE = {
 
     'sync-market-data-and-cleanup': {
         'task': 'apps.integrations.coingecko.tasks.sync_market_data_and_cleanup_task',
-        'schedule': crontab(minute=8, hour='14'),  # Every 8 hours
+        'schedule': crontab(minute=14, hour='18'), # type: ignore
     },
     'sync-multichain-tokens': {
         'task': 'apps.integrations.coingecko.tasks.sync_multichain_tokens_task',
-        'schedule': crontab(minute=20, hour='14'),  # 15 minutes after market sync
+        'schedule': crontab(minute=26, hour='18'),  # type: ignore
     },
     'sync-solana-decimals': {
         'task': 'apps.integrations.jupiter.tasks.sync_jupiter_solana_decimals_model',
