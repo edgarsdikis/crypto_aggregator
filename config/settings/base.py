@@ -107,15 +107,15 @@ CELERY_BEAT_SCHEDULE = {
 
     'sync-market-data-and-cleanup': {
         'task': 'apps.integrations.coingecko.tasks.sync_market_data_and_cleanup_task',
-        'schedule': crontab(minute=46, hour='18'), # type: ignore
+        'schedule': crontab(minute=56, hour='18'), # type: ignore
     },
     'sync-multichain-tokens': {
         'task': 'apps.integrations.coingecko.tasks.sync_multichain_tokens_task',
-        'schedule': crontab(minute=58, hour='18'),  # type: ignore
+        'schedule': crontab(minute=8, hour='19'),  # type: ignore
     },
     'sync-solana-decimals': {
-        'task': 'apps.integrations.jupiter.tasks.sync_jupiter_solana_decimals_model',
-        'schedule': crontab(minute=4, hour='19'), # type: ignore
+        'task': 'apps.integrations.jupiter.tasks.sync_jupiter_solana_decimals_task',
+        'schedule': crontab(minute=14, hour='19'), # type: ignore
         },
 }
 CELERY_TIMEZONE = 'Europe/Riga'

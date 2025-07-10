@@ -2,7 +2,7 @@ from celery import shared_task
 from .services import JupiterSyncService
 
 @shared_task
-def sync_jupiter_solana_decimals_model():
+def sync_jupiter_solana_decimals_task():
     """
     Celery task to sync SolanaTokenDecimals model using Jupiter "Tagged Tokens" API endpoint
 
