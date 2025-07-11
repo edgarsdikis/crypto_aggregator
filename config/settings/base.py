@@ -104,22 +104,22 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BROKER_URL = REDIS_URL
-CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1
 
 # Celery Beat settings (for scheduled tasks)
 CELERY_BEAT_SCHEDULE = {
 
     'sync-market-data-and-cleanup': {
         'task': 'apps.integrations.coingecko.tasks.sync_market_data_and_cleanup_task',
-        'schedule': crontab(minute=57, hour='13'), # type: ignore
+        'schedule': crontab(minute=27, hour='14'), # type: ignore
     },
     'sync-multichain-tokens': {
         'task': 'apps.integrations.coingecko.tasks.sync_multichain_tokens_task',
-        'schedule': crontab(minute=9, hour='14'),  # type: ignore
+        'schedule': crontab(minute=39, hour='14'),  # type: ignore
     },
     'sync-solana-decimals': {
         'task': 'apps.integrations.jupiter.tasks.sync_jupiter_solana_decimals_task',
-        'schedule': crontab(minute=15, hour='14'), # type: ignore
+        'schedule': crontab(minute=46, hour='14'), # type: ignore
         },
 }
 CELERY_TIMEZONE = 'Europe/Riga'
