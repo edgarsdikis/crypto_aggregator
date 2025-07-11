@@ -8,15 +8,6 @@ class CoinGeckoCoinsListSerializer(serializers.Serializer):
     id = serializers.CharField()
     platforms = serializers.DictField(required=False, default=dict)
 
-    def get_chain_contracts(self, obj):
-        """
-        Extract contract addresses per chain from platforms data
-        Returns: dict like {'ethereum': '0x123...', 'bsc': '0x456...'}
-        """
-        platforms = obj.get("platforms", {})
-        return platforms
-
-
 class CoinGeckoMarketDataSerializer(serializers.Serializer):
     """
     Serializer for individual coin from CoinGecko coins/markets API

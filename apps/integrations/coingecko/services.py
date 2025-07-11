@@ -13,14 +13,6 @@ class CoinGeckoSyncService:
     def __init__(self):
         self.client = CoinGeckoClient()
 
-    def sync_all(self):
-        """Complete sync"""
-        sync_start_time = timezone.now()
-        market_result = self.sync_market_data()
-        deleted_count, _ = self._remove_stale_tokens(sync_start_time)        
-        multichain_result = self.sync_multi_chain_tokens()
-        return f"Market sync: {market_result}.  Removed {deleted_count} stale tokens. Multichain sync: {multichain_result}"
-
     def sync_market_data(self):
         """Market data sync"""
         
