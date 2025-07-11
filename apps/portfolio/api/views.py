@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
-from .serializers import WalletListSerializer, WalletAssetsSerializer, WalletAssetsRequestSerializer
+from .serializers import WalletListSerializer, WalletAssetsSerializer, WalletAssetsRequestSerializer, UserPortfolioSerializer
 
 class UserWalletsListView(APIView):
     """Get all wallets for authenticated user with USD balances"""
@@ -82,4 +82,39 @@ class WalletAssetsView(APIView):
         except Exception as e:
             return Response({
                 "error": f"Failed to retrieve wallet assets: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UserPortfolioView(APIView):
+    """Get aggregated portfolio across all user wallets"""
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Get aggregated user portfolio",
+        description="Returns aggregated tokens across all user wallets, sorted by USD value",
+        responses={
+            200: UserPortfolioSerializer,
+            401: {"type": "object", "properties": {"error": {"type": "string"}}},
+            500: {"type": "object", "properties": {"error": {"type": "string"}}}
+        },
+        tags=["Portfolio"]
+    )
+    def get(self, request):
+        try:
+            portfolio_service = PortfolioService()
+            portfolio_data = portfolio_service.get_user_aggregated_portfolio(request.user)
+            
+            # Check if it's a "no wallets" response
+            if "message" in portfolio_data and portfolio_data["message"] == "User has no wallets":
+                return Response({
+                    "message": "User has no wallets",
+                    "tokens": []
+                }, status=status.HTTP_200_OK)
+            
+            # Use serializer for normal response
+            serializer = UserPortfolioSerializer(portfolio_data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "error": f"Failed to retrieve portfolio: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

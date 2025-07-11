@@ -272,13 +272,19 @@ class WalletService:
                 print(f"Error processing balance record: {e}")
                 continue
         
-        # Clean up old tokens if in update mode
-        if update_mode and processed_token_ids:
-            deleted_count, _ = WalletTokenBalance.objects.filter(
-                wallet=wallet
-            ).exclude(token_id__in=processed_token_ids).delete()
+        if update_mode:
+            if processed_token_ids:
+                # Delete tokens that are no longer in the wallet
+                deleted_count, _ = WalletTokenBalance.objects.filter(
+                    wallet=wallet
+                ).exclude(token_id__in=processed_token_ids).delete()
+            else:
+                # If no tokens were processed, delete ALL old tokens (empty wallet)
+                deleted_count, _ = WalletTokenBalance.objects.filter(
+                    wallet=wallet
+                ).delete()
             
             if deleted_count > 0:
-                print(f"Removed {deleted_count} tokens no longer in wallet")
+                print(f"Removed {deleted_count} old token records for wallet {wallet.address}")
         
         return token_count

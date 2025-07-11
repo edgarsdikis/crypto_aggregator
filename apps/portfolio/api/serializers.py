@@ -36,3 +36,7 @@ class WalletAssetsSerializer(serializers.Serializer):
     wallet_address = serializers.CharField()
     wallet_chain = serializers.CharField()
     tokens = WalletTokenSerializer(many=True)
+
+class UserPortfolioSerializer(serializers.Serializer):
+    """Serializer for aggregated user portfolio"""
+    tokens = WalletTokenSerializer(many=True)
