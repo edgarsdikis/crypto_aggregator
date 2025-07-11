@@ -25,13 +25,13 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     'https://decen-develop.onrender.com',
     'http://localhost:5173',
-    'https://decen-five.vercel.app/'
+    'https://decen-five.vercel.app'
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'https://decen-develop.onrender.com',
-    'https://decen-five.vercel.app/'
+    'https://decen-five.vercel.app'
     'http://localhost:5173'
 ]
