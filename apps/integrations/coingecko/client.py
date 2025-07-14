@@ -102,7 +102,7 @@ class CoinGeckoClient:
             'page': page,
             'order': order,
             'sparkline': 'false',
-            'price_change_percentage': '1h',
+            'price_change_percentage': '24h',
             'precision': precision
         }
         

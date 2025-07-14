@@ -5,6 +5,7 @@ class WalletListSerializer(serializers.Serializer):
     address = serializers.CharField()
     chain = serializers.CharField()
     balance_usd = serializers.CharField()
+    name = serializers.CharField()
 
 class WalletAssetsRequestSerializer(serializers.Serializer):
     """Serializer for wallet assets request"""

@@ -89,7 +89,8 @@ class PortfolioService:
                 wallet_data = {
                     'address': wallet.address,
                     'chain': wallet.chain,
-                    'balance_usd': str(balance_usd)
+                    'balance_usd': str(balance_usd),
+                    'name': wallet.name,
                 }
                 
                 wallets_data.append(wallet_data)
@@ -137,13 +138,18 @@ class PortfolioService:
             for token_balance in token_balances:
                 usd_value = self.calculate_token_balance_usd(token_balance)
 
+                # Extract price object to avoid repetition
+                price_obj = token_balance.token.master.coingecko_price
+
                 token_data = {
                     "token_details": {
                         "address": token_balance.token.contract_address,
                         "chain": token_balance.token.chain,
                         "symbol": token_balance.token.master.symbol,
                         "name": token_balance.token.master.name,
-                        "logo": token_balance.token.master.image
+                        "logo": token_balance.token.master.image,
+                        "price_usd": str(price_obj.price_usd),
+                        "percentage_24h": str(price_obj.percentage_24h),
                     },
                     "token_balance": {
                         "token_balance_formatted": str(token_balance.balance),
@@ -240,6 +246,9 @@ class PortfolioService:
                 usd_value = self.calculate_token_balance_usd(token_balance)
                 
                 if key not in token_groups:
+                     # Extract price object once
+                    price_obj = token_balance.token.master.coingecko_price
+
                     # First time seeing this token
                     token_groups[key] = {
                         'token_balance_sum': token_balance.balance,
@@ -249,7 +258,9 @@ class PortfolioService:
                             "chain": token_balance.token.chain,
                             "symbol": token_balance.token.master.symbol,
                             "name": token_balance.token.master.name,
-                            "logo": token_balance.token.master.image
+                            "logo": token_balance.token.master.image,
+                            "price_usd": str(price_obj.price_usd),
+                            "percentage_24h": str(price_obj.percentage_24h),
                         }
                     }
                 else:

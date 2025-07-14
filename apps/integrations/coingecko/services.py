@@ -87,6 +87,7 @@ class CoinGeckoSyncService:
                         token_master=token_master,
                         defaults={
                             'price_usd': validated_data['current_price'], # type: ignore
+                            'percentage_24h': validated_data['price_change_percentage_24h'], # type: ignore
                         }
                     )
                     
