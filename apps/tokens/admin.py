@@ -18,6 +18,9 @@ class TokenAdmin(admin.ModelAdmin):
     search_fields = ('master__name', 'chain', 'contract_address')
     list_filter = ['chain']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('master')
+
 @admin.register(SolanaTokenDecimals)
 class SolanaTokenDecimalsAdmin(admin.ModelAdmin):
     """
@@ -25,3 +28,7 @@ Admin configuration for SolanaTokenDecimals model
     """
     list_display = ('token__contract_address', 'decimals', 'jupiter_updated')
     search_fields = ['token__contract_address']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('token')
+

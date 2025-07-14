@@ -14,4 +14,7 @@ class UserWalletAdmin(admin.ModelAdmin):
     """Admin configuration for WalletUser model"""
     list_display = ('user', 'wallet__address', 'wallet__chain', 'name')
     search_fields = ('user__username', 'wallet__address')
-    list_filter = ('wallet__address', 'wallet__chain')
+    list_filter = ('wallet__address', 'wallet__chain')    
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user', 'wallet')
