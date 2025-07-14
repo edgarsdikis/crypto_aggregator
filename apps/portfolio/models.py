@@ -14,6 +14,10 @@ class WalletTokenBalance(models.Model):
 
     class Meta:
         unique_together = ('wallet', 'token')
+        indexes = [
+            models.Index(fields=['wallet', 'token']),  # Compound index
+            models.Index(fields=['wallet']),           # For wallet filtering
+        ]
 
     def __str__(self):
-        return f"{self.wallet.address} {self.wallet.chain}: {self.token.master.name} - ({self.balance})"
+        return f"{self.wallet.address}: {self.token.contract_address} - ({self.balance})"

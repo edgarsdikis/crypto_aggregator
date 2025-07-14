@@ -47,11 +47,13 @@ class PortfolioService:
             Decimal: Total USD value of the wallet
         """
         try:
-            # Get all token balances for this wallet
-            token_balances = WalletTokenBalance.objects.filter(wallet=wallet)
+            token_balances = WalletTokenBalance.objects.filter(wallet=wallet).select_related(
+                'token',                           # Fetch token data
+                'token__master',                   # Fetch token master data  
+                'token__master__coingecko_price'   # Fetch price data
+            )      
             
             total_usd = Decimal('0')
-            
             # Calculate USD value for each token and sum them up
             for token_balance in token_balances:
                 token_usd = self.calculate_token_balance_usd(token_balance)
