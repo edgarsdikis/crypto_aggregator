@@ -20,6 +20,8 @@ class TokenDataSerializer(serializers.Serializer):
     symbol = serializers.CharField()
     name = serializers.CharField()
     logo = serializers.URLField(allow_blank=True, allow_null=True)
+    price_usd = serializers.CharField()
+    percentage_24h = serializers.CharField()
 
 class TokenBalanceSerializer(serializers.Serializer):
     """Serializer for individual Token balance"""
