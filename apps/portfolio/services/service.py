@@ -90,7 +90,7 @@ class PortfolioService:
                     'address': wallet.address,
                     'chain': wallet.chain,
                     'balance_usd': str(balance_usd),
-                    'name': wallet.name,
+                    'name': user_wallet.name,
                 }
                 
                 wallets_data.append(wallet_data)
