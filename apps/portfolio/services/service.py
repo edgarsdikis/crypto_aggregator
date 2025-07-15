@@ -250,6 +250,7 @@ class PortfolioService:
                 if key not in token_groups:
                      # Extract price object once
                     price_obj = token_balance.token.master.coingecko_price
+                    frontend_chain = COINGECKO_TO_FRONTEND_MAPPING[token_balance.token.chain]
 
                     # First time seeing this token
                     token_groups[key] = {
@@ -257,7 +258,7 @@ class PortfolioService:
                         'usd_value_sum': usd_value,
                         'token_details': {
                             "address": token_balance.token.contract_address,
-                            "chain": token_balance.token.chain,
+                            "chain": frontend_chain,
                             "symbol": token_balance.token.master.symbol,
                             "name": token_balance.token.master.name,
                             "logo": token_balance.token.master.image,
