@@ -97,11 +97,12 @@ class WalletService:
             tuple: (success_bool, message_or_error)
         """
         try:
+            coingecko_chain_name = FRONTEND_TO_COINGECKO_MAPPING[chain]
             # Find and delete the wallet-user relationship
             deleted_count, _ = UserWallet.objects.filter(
                 user=user,
                 wallet__address=address,
-                wallet__chain=chain
+                wallet__chain=coingecko_chain_name
             ).delete()
             
             # Check if any records were deleted
