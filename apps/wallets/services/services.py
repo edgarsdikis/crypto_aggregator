@@ -128,7 +128,7 @@ class WalletService:
             tuple: (success_bool, message_or_error)
         """
         try:
-            coingecko_chain_name = self._convert_chain_to_coingecko_name(chain)
+            coingecko_chain_name = FRONTEND_TO_COINGECKO_MAPPING[chain]
             
             # Find the user wallet relationship
             user_wallet = UserWallet.objects.select_related('wallet').get(
