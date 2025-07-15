@@ -162,6 +162,9 @@ class CoinGeckoSyncService:
                     if platforms:
                         if coingecko_id == "binancecoin":
                             platforms['binance-smart-chain'] = 'native'
+
+                        if coingecko_id == "matic-network":
+                            platforms['polygon-pos'] = 'native'
                         
                         for chain, contract_address in platforms.items():
                             if contract_address:

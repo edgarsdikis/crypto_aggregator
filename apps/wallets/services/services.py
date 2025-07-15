@@ -3,7 +3,7 @@ from apps.integrations.alchemy.service import AlchemyWalletService
 from ..models import Wallet, UserWallet
 from ...portfolio.models import WalletTokenBalance
 from ...tokens.models import Token, TokenMaster
-from config.chain_mapping import ALCHEMY_NETWORK_MAPPING, NETWORK_MAPPING, COINGECKO_TO_ALCHEMY_MAPPING
+from config.chain_mapping import ALCHEMY_NETWORK_MAPPING, FRONTEND_TO_ALCHEMY_MAPPING, COINGECKO_TO_ALCHEMY_MAPPING, FRONTEND_TO_COINGECKO_MAPPING
 
 
 
@@ -21,7 +21,7 @@ class WalletService:
         Args:
             user: The user object
             address: Wallet address (str)
-            chain: Blockchain network (str)
+            chain: Frontend blockchain network name (str)
             name: Custom user wallet name (str)
 
         Returns:
@@ -31,7 +31,7 @@ class WalletService:
             ValueError: If wallet already exists or validation fails
             Exception: If external API fails
         """
-        coingecko_chain_name = self._convert_chain_to_coingecko_name(chain)
+        coingecko_chain_name = FRONTEND_TO_COINGECKO_MAPPING[chain]
 
         # Check if user has this wallet
         if self._wallet_exists_for_user(user, address, coingecko_chain_name):
@@ -39,9 +39,8 @@ class WalletService:
 
         # Validate wallet with Alchemy and get token balances
         try:
-            alchemy_network = self._convert_chain_to_alchemy_chain_name(chain)
-            networks = [alchemy_network]
-            response_data = self.alchemy_client.get_wallet_balances(address, networks)
+            alchemy_network = FRONTEND_TO_ALCHEMY_MAPPING[chain]
+            response_data = self.alchemy_client.get_wallet_balances(address, alchemy_network)
             valid_tokens = self.alchemy_service.process_wallet_balances(response_data)
         except Exception as e:
             raise Exception(f"Failed to validate wallet with Alchemy: {str(e)}")
@@ -55,7 +54,7 @@ class WalletService:
 
         return {
                 'address': address,
-                'chain': coingecko_chain_name,
+                'chain': chain,
                 'name': name,
                 'token_count': token_count
                 }
@@ -67,16 +66,6 @@ class WalletService:
                 wallet__address=address,
                 wallet__chain=chain
                 ).exists()
-
-    def _convert_chain_to_alchemy_chain_name(self, chain):
-        """Convert our chain name to Alchemy network name"""
-       # Create reverse mapping from your existing ALCHEMY_NETWORK_MAPPING
-        return NETWORK_MAPPING[chain]
-
-    def _convert_chain_to_coingecko_name(self, chain):
-        """Convert our chain name to Coingecko name"""
-        alchemy_network = self._convert_chain_to_alchemy_chain_name(chain)
-        return ALCHEMY_NETWORK_MAPPING[alchemy_network]['coingecko_name']
 
     def _get_or_create_wallet(self, address, chain):
         """Get existing wallet or create new one"""

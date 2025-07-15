@@ -71,7 +71,7 @@ ALCHEMY_NETWORK_MAPPING = {
         'coingecko_name': 'optimistic-ethereum',
         'native_decimals': 18
     },
-    'polygon-mainnet': {
+    'matic-mainnet': {
         'coingecko_name': 'polygon-pos',
         'native_decimals': 18
     },
@@ -118,40 +118,6 @@ ALCHEMY_NETWORK_MAPPING = {
 }
 
 
-NETWORK_MAPPING = {
-    'abstract': 'abstract-mainnet',
-    'anime': 'anime-mainnet',
-    'apechain': 'apechain-mainnet',
-    'arbitrum-one': 'arb-mainnet',
-    'arbitrum-nova': 'arbnova-mainnet',
-    'avalanche': 'avax-mainnet',
-    'bsc': 'bnb-mainnet',
-    'base': 'base-mainnet',
-    'berachain': 'berachain-mainnet',
-    'blast': 'blast-mainnet',
-    'celo': 'celo-mainnet',
-    'eth': 'eth-mainnet',
-    'genesys': 'gensyn-testnet',
-    'xdai': 'gnosis-mainnet',
-    'ink': 'ink-mainnet',
-    'lens': 'lens-mainnet',
-    'linea': 'linea-mainnet',
-    'optimism': 'opt-mainnet',
-    'polygon': 'polygon-mainnet',
-    'ronin': 'ronin-mainnet',
-    'rootstock': 'rootstock-mainnet',
- 'scroll': 'scroll-mainnet',
-    'solana': 'solana-mainnet',
-    'soneium': 'soneium-mainnet',
-    'story': 'story-mainnet',
-    'unichain': 'unichain-mainnet',
-    'worldchain': 'worldchain-mainnet',
-    'zksync': 'zksync-mainnet',
-    'zora': 'zora-mainnet',
-}
-
-
-
 # Chain for coingecko native tokens
 COINGECKO_NATIVE_TOKEN_MAPPING = {
     'ethereum': ['abstract','ethereum', 'arbitrum-one', 'arbitrum-nova', 'base', 'blast', 'linea', 'optimistic-ethereum', 'scroll', 'unichain', 'world-chain', 'zksync', 'zora-network'],
@@ -195,7 +161,7 @@ COINGECKO_TO_ALCHEMY_MAPPING = {
     'lens': 'lens-mainnet',
     'linea': 'linea-mainnet',
     'optimistic-ethereum': 'opt-mainnet',
-    'polygon-pos': 'polygon-mainnet',
+    'polygon-pos': 'matic-mainnet',
     'ronin': 'ronin-mainnet',
     'rootstock': 'ronin-mainnet',
     'scroll': 'scroll-mainnet',
@@ -239,4 +205,70 @@ FRONTEND_TO_COINGECKO_MAPPING = {
     'worldchain': 'world-chain',
     'zksync': 'zksync',
     'zora': 'zora-network',
+}
+
+
+FRONTEND_TO_ALCHEMY_MAPPING = {
+    'abstract': 'abstract-mainnet',
+    'anime': 'anime-mainnet',
+    'apechain': 'apechain-mainnet',
+    'arbitrum-one': 'arb-mainnet',
+    'arbitrum-nova': 'arbnova-mainnet',
+    'avalanche': 'avax-mainnet',
+    'bsc': 'bnb-mainnet',
+    'base': 'base-mainnet',
+    'berachain': 'berachain-mainnet',
+    'blast': 'blast-mainnet',
+    'celo': 'celo-mainnet',
+    'eth': 'eth-mainnet',
+    'genesys': 'gensyn-testnet',
+    'xdai': 'gnosis-mainnet',
+    'ink': 'ink-mainnet',
+    'lens': 'lens-mainnet',
+    'linea': 'linea-mainnet',
+    'optimism': 'opt-mainnet',
+    'polygon': 'matic-mainnet',
+    'ronin': 'ronin-mainnet',
+    'rootstock': 'rootstock-mainnet',
+ 'scroll': 'scroll-mainnet',
+    'solana': 'solana-mainnet',
+    'soneium': 'soneium-mainnet',
+    'story': 'story-mainnet',
+    'unichain': 'unichain-mainnet',
+    'worldchain': 'worldchain-mainnet',
+    'zksync': 'zksync-mainnet',
+    'zora': 'zora-mainnet',
+}
+
+
+NETWORK_MAPPING = {
+    'abstract': 'abstract-mainnet',
+    'anime': 'anime-mainnet',
+    'apechain': 'apechain-mainnet',
+    'arbitrum-one': 'arb-mainnet',
+    'arbitrum-nova': 'arbnova-mainnet',
+    'avalanche': 'avax-mainnet',
+    'bsc': 'bnb-mainnet',
+    'base': 'base-mainnet',
+    'berachain': 'berachain-mainnet',
+    'blast': 'blast-mainnet',
+    'celo': 'celo-mainnet',
+    'eth': 'eth-mainnet',
+    'genesys': 'gensyn-testnet',
+    'xdai': 'gnosis-mainnet',
+    'ink': 'ink-mainnet',
+    'lens': 'lens-mainnet',
+    'linea': 'linea-mainnet',
+    'optimism': 'opt-mainnet',
+    'polygon': 'matic-mainnet',
+    'ronin': 'ronin-mainnet',
+    'rootstock': 'rootstock-mainnet',
+ 'scroll': 'scroll-mainnet',
+    'solana': 'solana-mainnet',
+    'soneium': 'soneium-mainnet',
+    'story': 'story-mainnet',
+    'unichain': 'unichain-mainnet',
+    'worldchain': 'worldchain-mainnet',
+    'zksync': 'zksync-mainnet',
+    'zora': 'zora-mainnet',
 }
