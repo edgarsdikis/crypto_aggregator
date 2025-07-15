@@ -15,6 +15,9 @@ SESSION_SAVE_EVERY_REQUEST = False
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024  # 1MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024  # 1MB
 
+# Tell Django to trust Render's proxy headers
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Security settings
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
@@ -31,7 +34,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     'https://decen.app',
     'https://www.decen.app',
-    'https://decen-production.onrender.com'
+    'https://decen-production.onrender.com',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -39,5 +42,5 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     'https://decen-production.onrender.com',
     'https://decen.app',
-    'https://www.decen.app'
+    'https://www.decen.app',
 ]
