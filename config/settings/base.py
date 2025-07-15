@@ -119,7 +119,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'sync-solana-decimals': {
         'task': 'apps.integrations.jupiter.tasks.sync_jupiter_solana_decimals_task',
-        'schedule': crontab(minute=27, hour='19'), # type: ignore
+        'schedule': crontab(minute=37, hour='19'), # type: ignore
         },
 }
 CELERY_TIMEZONE = 'Europe/Riga'
