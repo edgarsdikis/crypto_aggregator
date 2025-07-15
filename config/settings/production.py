@@ -1,7 +1,19 @@
 from .base import *
 
 DEBUG = False
-ALLOWED_HOSTS = ['api.yourdomain.com']  # Update with your production domain
+ALLOWED_HOSTS = ['decen-production.onrender.com']
+
+# Reuse database connections instead of creating new ones
+DATABASES['default']['CONN_MAX_AGE'] = 600  # 10 minutes
+
+# MEMORY OPTIMIZATION: Optimize sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 3600  # 1 hour instead of 2 weeks
+SESSION_SAVE_EVERY_REQUEST = False
+
+# MEMORY OPTIMIZATION: Limit file upload memory usage
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024  # 1MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024  # 1MB
 
 # Security settings
 SECURE_SSL_REDIRECT = True
@@ -17,14 +29,15 @@ X_FRAME_OPTIONS = 'DENY'
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
-    'https://yourdomain.com',  # Update with your production frontend
-    'https://www.yourdomain.com'
+    'https://decen.app',
+    'https://www.decen.app',
+    'https://decen-production.onrender.com'
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    'https://api.yourdomain.com',  # Backend
-    'https://yourdomain.com',  # Frontend
-    'https://www.yourdomain.com'
+    'https://decen-production.onrender.com'
+    'https://decen.app',
+    'https://www.decen.app'
 ]
