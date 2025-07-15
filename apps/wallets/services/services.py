@@ -3,7 +3,7 @@ from apps.integrations.alchemy.service import AlchemyWalletService
 from ..models import Wallet, UserWallet
 from ...portfolio.models import WalletTokenBalance
 from ...tokens.models import Token, TokenMaster
-from config.chain_mapping import ALCHEMY_NETWORK_MAPPING, FRONTEND_TO_ALCHEMY_MAPPING, COINGECKO_TO_ALCHEMY_MAPPING, FRONTEND_TO_COINGECKO_MAPPING
+from config.chain_mapping import ALCHEMY_NETWORK_MAPPING, FRONTEND_TO_ALCHEMY_MAPPING, COINGECKO_TO_ALCHEMY_MAPPING, FRONTEND_TO_COINGECKO_MAPPING, COINGECKO_TO_FRONTEND_MAPPING
 
 
 
@@ -170,13 +170,15 @@ class WalletService:
         
         for user_wallet in user_wallets:
             wallet = user_wallet.wallet
+
+            frontend_chain = COINGECKO_TO_FRONTEND_MAPPING[wallet.chain]
             
             try:
                 token_count = self._sync_single_wallet(wallet)
                 
                 results.append({
                     "wallet_address": wallet.address,
-                    "chain": wallet.chain,
+                    "chain": frontend_chain,
                     "token_count": token_count,
                     "status": "Success"
                 })
@@ -185,7 +187,7 @@ class WalletService:
             except Exception as e:
                 results.append({
                     "wallet_address": wallet.address, 
-                    "chain": wallet.chain,
+                    "chain": frontend_chain,
                     "token_count": 0,
                     "status": "Failure",
                     "error": str(e)
