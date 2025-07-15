@@ -2,7 +2,7 @@ from decimal import Decimal
 from ..models import WalletTokenBalance
 from apps.prices.models import CoingeckoPrice
 from apps.wallets.models import UserWallet
-from config.chain_mapping import FRONTEND_TO_COINGECKO_MAPPING
+from config.chain_mapping import FRONTEND_TO_COINGECKO_MAPPING, COINGECKO_TO_FRONTEND_MAPPING
 
 class PortfolioService:
     """Service for portfolio calculations and USD value computations"""
@@ -86,11 +86,11 @@ class PortfolioService:
                 
                 # Calculate total USD balance for this wallet
                 balance_usd = self.calculate_wallet_total_usd(wallet)
-                
+                frontend_chain = COINGECKO_TO_FRONTEND_MAPPING[wallet.chain]
                 # Create the response data
                 wallet_data = {
                     'address': wallet.address,
-                    'chain': wallet.chain,
+                    'chain': frontend_chain,
                     'balance_usd': str(balance_usd),
                     'name': user_wallet.name,
                 }
