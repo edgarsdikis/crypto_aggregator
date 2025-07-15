@@ -32,6 +32,6 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'https://decen-develop.onrender.com',
-    'https://decen-five.vercel.app'
-    'http://localhost:5173'
+    'https://decen-five.vercel.app',
+    'http://localhost:5173',
 ]
