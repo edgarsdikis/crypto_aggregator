@@ -37,7 +37,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    'https://decen-production.onrender.com'
+    'https://decen-production.onrender.com',
     'https://decen.app',
     'https://www.decen.app'
 ]
